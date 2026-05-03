@@ -215,35 +215,13 @@ export default function Home() {
       <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <h1 className="text-lg font-bold text-gray-900">ResumeVibing</h1>
-          {/* Pages selector in navbar */}
-          <div className="hidden sm:flex items-center gap-1 ml-4">
-            {cvData.pages.map((page, index) => (
-              <button
-                key={page.id}
-                onClick={() => handleSelectPage(index)}
-                className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-colors ${
-                  cvData.activePage === index
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {page.name}
-              </button>
-            ))}
-            <button
-              onClick={handleAddPage}
-              className="px-2 py-1.5 text-xs rounded-lg font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 ml-1"
-            >
-              +
-            </button>
-          </div>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowSettings(true)}
             className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
-            Settings
+            ⚙️ Settings
           </button>
           {/* Mobile toggle buttons */}
           <button
@@ -265,6 +243,31 @@ export default function Home() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col lg:flex-row">
 
+        {/* Mobile Page Selector */}
+        <div className="lg:hidden w-full bg-white border-b border-gray-200 p-3">
+          <div className="flex gap-2 items-center">
+            {cvData.pages.map((page, index) => (
+              <button
+                key={page.id}
+                onClick={() => handleSelectPage(index)}
+                className={`px-3 py-2 text-sm rounded-lg font-medium transition-colors ${
+                  cvData.activePage === index
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {page.name}
+              </button>
+            ))}
+            <button
+              onClick={handleAddPage}
+              className="px-3 py-2 text-sm rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
+            >
+              + Page
+            </button>
+          </div>
+        </div>
+
         {/* Template Selection - Horizontal on Mobile */}
         <div className="lg:hidden w-full bg-white border-b border-gray-200 p-3 overflow-x-auto">
           <div className="flex gap-2">
@@ -282,6 +285,31 @@ export default function Home() {
                 <span className="text-white text-xs font-bold">{template.name.substring(0, 3)}</span>
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* Page Indicator - Center of screen */}
+        <div className="hidden lg:flex w-full bg-white border-b border-gray-200 p-3 justify-center">
+          <div className="flex gap-3 items-center">
+            {cvData.pages.map((page, index) => (
+              <button
+                key={page.id}
+                onClick={() => handleSelectPage(index)}
+                className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
+                  cvData.activePage === index
+                    ? 'bg-gray-900 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {page.name}
+              </button>
+            ))}
+            <button
+              onClick={handleAddPage}
+              className="px-3 py-2 text-sm rounded-lg font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 border border-dashed border-gray-300"
+            >
+              + Add
+            </button>
           </div>
         </div>
 
