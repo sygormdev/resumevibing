@@ -53,53 +53,86 @@ export default function Home() {
 
       setExportProgress(20)
 
-      // Find the template element
-      const templateRoot = previewRef.current.querySelector('.min-h-screen') as HTMLElement
+      // Find the actual template element
+      const templateEl = previewRef.current.querySelector('.min-h-screen') as HTMLElement
       
-      if (!templateRoot) {
+      if (!templateEl) {
         throw new Error('Template not found')
       }
 
       setExportProgress(30)
 
-      // Wait for images to load
-      const images = templateRoot.getElementsByTagName('img')
-      for (const img of Array.from(images)) {
-        if (!img.complete) {
-          await new Promise<void>((resolve) => {
-            img.onload = () => resolve()
-            img.onerror = () => resolve()
-          })
-        }
-      }
+      // Wait for images to fully load
+      const images = templateEl.getElementsByTagName('img')
+      await Promise.all(
+        Array.from(images).map(
+          (img) =>
+            new Promise<void>((resolve) => {
+              if (img.complete) {
+                resolve()
+              } else {
+                img.onload = () => resolve()
+                img.onerror = () => resolve()
+              }
+            })
+        )
+      )
 
       setExportProgress(40)
 
-      // Get template dimensions
-      const rect = templateRoot.getBoundingClientRect()
+      // Get actual content dimensions from bounding rect
+      const rect = templateEl.getBoundingClientRect()
+      const displayWidth = rect.width
+      const displayHeight = rect.height
       
-      setExportProgress(50)
+      // The scale is applied via CSS class, so bounding rect gives us SCALED size
+      // We need to find the actual content size
+      // The container has transform: scale(0.4) which makes everything 40% smaller
+      // So actual size = display size / 0.4 = display size * 2.5
+      const actualWidth = displayWidth * 2.5
+      const actualHeight = displayHeight * 2.5
+      
+      // Create a hidden container with exact dimensions
+      const exportDiv = document.createElement('div')
+      exportDiv.style.position = 'absolute'
+      exportDiv.style.left = '-9999px'
+      exportDiv.style.top = '0px'
+      exportDiv.style.width = actualWidth + 'px'
+      exportDiv.style.height = actualHeight + 'px'
+      exportDiv.style.backgroundColor = '#ffffff'
+      exportDiv.style.overflow = 'hidden'
+      
+      // Clone the template content
+      const clone = templateEl.cloneNode(true) as HTMLElement
+      clone.style.transform = 'none'
+      clone.style.width = actualWidth + 'px'
+      clone.style.height = actualHeight + 'px'
+      exportDiv.appendChild(clone)
+      document.body.appendChild(exportDiv)
+      
+      // Wait for layout
+      await new Promise(resolve => setTimeout(resolve, 300))
 
-      // Capture directly - html-to-image handles transforms via style overrides
-      const dataUrl = await toJpeg(templateRoot, {
+      setExportProgress(60)
+
+      // Capture the export div
+      const dataUrl = await toJpeg(exportDiv, {
         quality: 0.95,
         pixelRatio: 2,
         cacheBust: true,
-        backgroundColor: '#ffffff',
-        style: {
-          transform: 'none',
-          transformOrigin: 'top left',
-          width: rect.width + 'px'
-        }
+        backgroundColor: '#ffffff'
       })
 
-      setExportProgress(70)
+      setExportProgress(80)
 
-      // Create PDF with exact content dimensions
+      // Remove temporary element
+      document.body.removeChild(exportDiv)
+
+      // Create PDF
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
       
-      // Create image to get actual dimensions
+      // Calculate height to maintain aspect ratio
       const img = new Image()
       img.src = dataUrl
       await new Promise<void>((resolve) => {
@@ -107,18 +140,13 @@ export default function Home() {
         img.onerror = () => resolve()
       })
       
-      // Calculate height to maintain aspect ratio
-      const imgWidth = img.naturalWidth
-      const imgHeight = img.naturalHeight
-      const aspectRatio = imgHeight / imgWidth
-      
-      // Fit to page width
+      const imgAspectRatio = img.naturalHeight / img.naturalWidth
       const pdfWidth = pageWidth
-      const pdfHeight = pdfWidth * aspectRatio
+      const pdfHeight = pdfWidth * imgAspectRatio
       
       pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight)
 
-      setExportProgress(90)
+      setExportProgress(95)
       
       const pdfBlob = pdf.output('blob')
       const url = URL.createObjectURL(pdfBlob)
