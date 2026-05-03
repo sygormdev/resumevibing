@@ -24,7 +24,7 @@ function TemplatePreview({ templateId, data, pageIndex }: { templateId: string; 
 }
 
 // Landing Page Component
-function LandingPage({ onManuel }: { onManuel: () => void }) {
+function LandingPage({ onManuel, onAbout }: { onManuel: () => void; onAbout: () => void }) {
   return (
     <div 
       className="h-screen relative overflow-hidden flex flex-col"
@@ -77,11 +77,14 @@ function LandingPage({ onManuel }: { onManuel: () => void }) {
           <div className="bg-white/30 backdrop-blur-xl rounded-2xl border border-white/40 shadow-2xl px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
                 <img src="/resumevibing.png" alt="ResumeVibing" className="h-10 w-auto" />
-                <span className="text-xl font-bold text-gray-800">ResumeVibing</span>
+                <span className="text-xl font-bold text-gray-800">Resume Vibing</span>
               </div>
             <div className="flex items-center gap-3">
-              <button className="px-5 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all shadow-lg">
-                Create
+              <button 
+                onClick={onAbout}
+                className="px-5 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all shadow-lg"
+              >
+                About
               </button>
               <button 
                 onClick={onManuel}
@@ -111,8 +114,61 @@ function LandingPage({ onManuel }: { onManuel: () => void }) {
   )
 }
 
+// About Page Component
+function AboutPage({ onBack }: { onBack: () => void }) {
+  return (
+    <div 
+      className="min-h-screen bg-cover bg-center bg-no-repeat flex flex-col"
+      style={{ backgroundImage: 'url(/resumevibingbg.png)' }}
+    >
+      {/* Glass Navbar */}
+      <header className="sticky top-0 z-40 px-4 py-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white/20 backdrop-blur-xl rounded-2xl border border-white/30 shadow-2xl px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/resumevibing.png" alt="ResumeVibing" className="h-10 w-auto" />
+              <span className="text-xl font-bold text-white">Resume Vibing</span>
+            </div>
+            <button 
+              onClick={onBack}
+              className="px-5 py-2 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl hover:bg-white/30 transition-all border border-white/30"
+            >
+              Back
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* About Content */}
+      <div className="flex-1 flex items-center justify-center p-8">
+        <div className="max-w-2xl bg-black/40 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl p-10">
+          <h1 className="text-4xl font-bold text-white mb-6 text-center">About Resume Vibing</h1>
+          <div className="space-y-4 text-white/90 text-lg leading-relaxed">
+            <p>
+              Resume Vibing is a modern, intuitive resume builder designed to help you create 
+              professional CVs in minutes. Our mission is to make the resume creation process 
+              effortless and enjoyable.
+            </p>
+            <p>
+              With beautifully designed templates, easy customization options, and seamless 
+              PDF export, Resume Vibing empowers you to present your professional story 
+              in the best possible light.
+            </p>
+            <p>
+              Whether you're a recent graduate starting your career journey or a seasoned 
+              professional looking to update your portfolio, Resume Vibing has everything 
+              you need to create a standout resume.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const [showLanding, setShowLanding] = useState(true)
+  const [showAbout, setShowAbout] = useState(false)
   const [cvData, setCvData] = useState<CVData>(sampleCVData)
   const [selectedTemplate, setSelectedTemplate] = useState('1')
   const [isExporting, setIsExporting] = useState(false)
@@ -122,6 +178,14 @@ export default function Home() {
   const [showEditor, setShowEditor] = useState(true)
   const [showSettings, setShowSettings] = useState(false)
   const previewRef = useRef<HTMLDivElement>(null)
+
+  const handleAbout = () => {
+    setShowAbout(true)
+  }
+
+  const handleBackFromAbout = () => {
+    setShowAbout(false)
+  }
 
   const handleManuel = () => {
     setShowLanding(false)
@@ -283,8 +347,12 @@ export default function Home() {
   }
 
   // Show landing page
+  if (showAbout) {
+    return <AboutPage onBack={handleBackFromAbout} />
+  }
+
   if (showLanding) {
-    return <LandingPage onManuel={handleManuel} />
+    return <LandingPage onManuel={handleManuel} onAbout={handleAbout} />
   }
 
   return (
