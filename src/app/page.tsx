@@ -27,13 +27,13 @@ function TemplatePreview({ templateId, data, pageIndex }: { templateId: string; 
 function LandingPage({ onManuel }: { onManuel: () => void }) {
   return (
     <div 
-      className="min-h-screen relative overflow-hidden"
+      className="h-screen relative overflow-hidden flex flex-col"
       style={{
         background: 'radial-gradient(ellipse at center, #fefeff 0%, #fefeff 35%, #B7E8EB 100%)'
       }}
     >
       {/* Animated Ocean Waves */}
-      <div className="ocean">
+      <div className="ocean flex-shrink-0">
         <div className="wave"></div>
         <div className="wave"></div>
       </div>
@@ -72,7 +72,7 @@ function LandingPage({ onManuel }: { onManuel: () => void }) {
       `}</style>
 
       {/* Glass Navbar */}
-      <header className="relative z-40 px-4 py-4">
+      <header className="sticky top-0 z-40 px-4 py-4">
         <div className="max-w-6xl mx-auto">
           <div className="bg-white/30 backdrop-blur-xl rounded-2xl border border-white/40 shadow-2xl px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -94,7 +94,7 @@ function LandingPage({ onManuel }: { onManuel: () => void }) {
         </div>
       </header>
 
-      {/* Center Content */}
+      {/* Center Content - Centered in remaining space above waves */}
       <div className="relative z-30 flex-1 flex flex-col items-center justify-center">
         <button 
           onClick={onManuel}
