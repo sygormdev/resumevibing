@@ -53,7 +53,7 @@ export default function Home() {
 
       setExportProgress(20)
 
-      // Find the template element (min-h-screen inside preview)
+      // Find the template element
       const templateRoot = previewRef.current.querySelector('.min-h-screen') as HTMLElement
       
       if (!templateRoot) {
@@ -75,41 +75,53 @@ export default function Home() {
 
       setExportProgress(40)
 
-      // Get computed dimensions before transform removal
+      // Get the actual content dimensions
       const rect = templateRoot.getBoundingClientRect()
-      const captureWidth = Math.round(rect.width)
-      const captureHeight = Math.round(rect.height)
+      const actualWidth = rect.width
+      const actualHeight = rect.height
       
-      // Remove transform from parent container
-      previewRef.current.style.transform = 'none'
-      previewRef.current.style.width = captureWidth + 'px'
+      // Save and remove scale transform from parent
+      const previewEl = previewRef.current
+      const originalClassName = previewEl.className
+      const originalTransform = previewEl.style.transform
       
-      // Force reflow
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Remove scale classes and transform for capture
+      previewEl.className = originalClassName.replace(/scale-\\[[^\\]]+\\]/g, '').replace(/lg:scale-\\[[^\\]]+\\]/g, '')
+      previewEl.style.transform = 'none'
+      
+      // Force layout recalc
+      await new Promise(resolve => setTimeout(resolve, 200))
 
       setExportProgress(50)
 
+      // Capture at actual pixel dimensions (not logical)
       const dataUrl = await toJpeg(templateRoot, {
         quality: 0.95,
-        width: captureWidth,
-        height: captureHeight,
+        pixelRatio: 2, // 2x for retina quality
         cacheBust: true,
         backgroundColor: '#ffffff'
       })
 
       setExportProgress(70)
 
-      // Restore transform
-      previewRef.current.style.transform = ''
-      previewRef.current.style.width = ''
+      // Restore original styles
+      previewEl.className = originalClassName
+      previewEl.style.transform = originalTransform
 
-      // Create PDF with A4 dimensions
+      // Calculate PDF dimensions to fit content properly
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
-
-      // Add image to PDF with exact A4 size
-      pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pageHeight)
+      
+      // Calculate scale to fit content width to page width
+      const imgAspectRatio = actualHeight / actualWidth
+      const pdfWidth = pageWidth
+      const pdfHeight = Math.min(pageWidth * imgAspectRatio, pageHeight) // Cap at page height
+      
+      // Center vertically if content is shorter than page
+      const yOffset = pdfHeight < pageHeight ? (pageHeight - pdfHeight) / 2 : 0
+      
+      pdf.addImage(dataUrl, 'JPEG', 0, yOffset, pdfWidth, pdfHeight)
 
       setExportProgress(90)
       
