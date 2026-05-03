@@ -24,7 +24,7 @@ function TemplatePreview({ templateId, data, pageIndex }: { templateId: string; 
 }
 
 // Landing Page Component
-function LandingPage({ onCreate }: { onCreate: () => void }) {
+function LandingPage({ onManuel }: { onManuel: () => void }) {
   return (
     <div 
       className="min-h-screen bg-cover bg-center bg-no-repeat flex flex-col"
@@ -34,18 +34,21 @@ function LandingPage({ onCreate }: { onCreate: () => void }) {
       <header className="sticky top-0 z-40 px-4 py-4">
         <div className="max-w-6xl mx-auto">
           <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src="/resumevibing.png" alt="ResumeVibing" className="h-10 w-auto" />
-              <span className="text-xl font-bold text-white">ResumeVibing</span>
+            <div>
+              <div className="flex items-center gap-3">
+                <img src="/resumevibing.png" alt="ResumeVibing" className="h-10 w-auto" />
+                <span className="text-xl font-bold text-white">ResumeVibing</span>
+              </div>
+              <p className="text-white/60 text-xs mt-1 ml-1">Build your perfect resume in minutes</p>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={onCreate}
-                className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all shadow-lg"
-              >
+              <button className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all shadow-lg">
                 Create
               </button>
-              <button className="px-6 py-2.5 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl hover:bg-white/30 transition-all border border-white/30">
+              <button 
+                onClick={onManuel}
+                className="px-6 py-2.5 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl hover:bg-white/30 transition-all border border-white/30"
+              >
                 Manuel
               </button>
             </div>
@@ -53,16 +56,10 @@ function LandingPage({ onCreate }: { onCreate: () => void }) {
         </div>
       </header>
 
-      {/* Center Content - Remove duplicate button since navbar has Create */}
+      {/* Center Content */}
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-white/80 text-lg mb-4">Build your perfect resume in minutes</p>
-          <button
-            onClick={onCreate}
-            className="px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xl font-bold rounded-2xl hover:from-purple-500 hover:to-pink-500 transition-all transform hover:scale-105 shadow-2xl"
-          >
-            Create
-          </button>
+          <p className="text-white/80 text-lg mb-4">Start building your professional resume today</p>
         </div>
       </div>
     </div>
@@ -81,7 +78,7 @@ export default function Home() {
   const [showSettings, setShowSettings] = useState(false)
   const previewRef = useRef<HTMLDivElement>(null)
 
-  const handleCreate = () => {
+  const handleManuel = () => {
     setShowLanding(false)
   }
 
@@ -242,7 +239,7 @@ export default function Home() {
 
   // Show landing page
   if (showLanding) {
-    return <LandingPage onCreate={handleCreate} />
+    return <LandingPage onManuel={handleManuel} />
   }
 
   return (
