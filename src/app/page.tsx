@@ -75,40 +75,54 @@ export default function Home() {
 
       setExportProgress(40)
 
-      // Remove scale transforms by setting inline styles on templateRoot
-      const computedStyle = window.getComputedStyle(templateRoot)
-      const originalTransform = templateRoot.style.transform
-      const originalWidth = templateRoot.style.width
+      // Get the actual template element - it's the child with min-h-screen
+      // We need to capture it without the parent scale transform
       
-      // Force remove transform and set width for full capture
-      templateRoot.style.transform = 'none'
-      templateRoot.style.width = computedStyle.width
+      // Get bounding box of actual content
+      const rect = templateRoot.getBoundingClientRect()
+      const contentWidth = rect.width
+      const contentHeight = rect.height
+      
+      // Force layout by temporarily removing all transforms on the chain
+      let element: HTMLElement | null = templateRoot
+      const transformOverrides: { el: HTMLElement; transform: string }[] = []
+      
+      while (element && element !== previewRef.current) {
+        const currentTransform = element.style.transform
+        if (!element.style.transform.includes('none')) {
+          element.style.transform = 'none'
+          transformOverrides.push({ el: element, transform: currentTransform })
+        }
+        element = element.parentElement
+      }
+      
+      // Also handle the preview container scale
+      const previewEl = previewRef.current
+      const previewTransform = previewEl.style.transform
+      previewEl.style.transform = 'none'
 
       setExportProgress(50)
 
-      // Small delay to let DOM update
-      await new Promise(resolve => setTimeout(resolve, 200))
+      // Wait for layout to settle
+      await new Promise(resolve => setTimeout(resolve, 300))
 
-      // Try capturing the parent which has the ref
-      const captureTarget = previewRef.current
-      
-      const dataUrl = await toJpeg(captureTarget, {
+      // Capture at 2x for quality, using width/height to get exact dimensions
+      const dataUrl = await toJpeg(templateRoot, {
         quality: 0.95,
-        pixelRatio: 1,
+        pixelRatio: 2,
+        width: contentWidth * 2,
+        height: contentHeight * 2,
         cacheBust: true,
-        backgroundColor: '#ffffff',
-        filter: (node) => {
-          // Don't capture the preview container itself, only children
-          if (node === captureTarget) return true
-          return true
-        }
+        backgroundColor: '#ffffff'
       })
 
       setExportProgress(70)
 
-      // Restore original styles
-      templateRoot.style.transform = originalTransform
-      templateRoot.style.width = originalWidth
+      // Restore transforms
+      for (const { el, transform } of transformOverrides) {
+        el.style.transform = transform
+      }
+      previewEl.style.transform = previewTransform
 
       // Create PDF with A4 dimensions
       const pdf = new jsPDF('p', 'mm', 'a4')
