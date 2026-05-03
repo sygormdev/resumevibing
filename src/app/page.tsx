@@ -65,6 +65,8 @@ export default function Home() {
     setDownloadUrl(null)
     setPdfReady(false)
 
+    const originalActivePage = cvData.activePage
+
     try {
       const { toJpeg } = await import('html-to-image')
       const { jsPDF } = await import('jspdf')
@@ -82,7 +84,7 @@ export default function Home() {
         setCvData(prev => ({ ...prev, activePage: i }))
         
         // Wait for render
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise(resolve => setTimeout(resolve, 300))
         
         // Find the template element
         const templateEl = previewRef.current.querySelector('.min-h-screen') as HTMLElement
@@ -103,20 +105,29 @@ export default function Home() {
           )
         )
 
-        // Remove scale transform
+        // Get actual content dimensions
+        const contentWidth = templateEl.offsetWidth
+        const contentHeight = templateEl.offsetHeight
+        
+        // Set preview container to exact content width
         const previewContainer = previewRef.current
+        previewContainer.style.width = `${contentWidth}px`
         previewContainer.style.transform = 'none'
-        await new Promise(resolve => setTimeout(resolve, 200))
+        
+        await new Promise(resolve => setTimeout(resolve, 100))
 
         // Capture this page
         const dataUrl = await toJpeg(templateEl, {
           quality: 0.95,
           pixelRatio: 2,
           cacheBust: true,
-          backgroundColor: '#ffffff'
+          backgroundColor: '#ffffff',
+          width: contentWidth,
+          height: contentHeight
         })
 
-        // Restore transform
+        // Restore styles
+        previewContainer.style.width = ''
         previewContainer.style.transform = ''
 
         // Add page to PDF (skip first page, it exists by default)
@@ -124,11 +135,16 @@ export default function Home() {
           pdf.addPage()
         }
         
-        // Add image to current page
-        pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pageHeight)
+        // Add image to current page - fit to page width and calculate height
+        const imgAspectRatio = contentHeight / contentWidth
+        const pdfHeight = pageWidth * imgAspectRatio
+        pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pdfHeight)
       }
 
       setExportProgress(95)
+      
+      // Restore original active page
+      setCvData(prev => ({ ...prev, activePage: originalActivePage }))
       
       const pdfBlob = pdf.output('blob')
       const url = URL.createObjectURL(pdfBlob)
@@ -138,6 +154,8 @@ export default function Home() {
       setDownloadUrl(url)
     } catch (error) {
       console.error('PDF export failed:', error)
+      // Restore original state on error
+      setCvData(prev => ({ ...prev, activePage: originalActivePage }))
       alert('PDF export failed: ' + (error instanceof Error ? error.message : 'Unknown error'))
       setIsExporting(false)
     }
