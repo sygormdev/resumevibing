@@ -75,53 +75,54 @@ export default function Home() {
 
       setExportProgress(40)
 
-      // Get the actual content dimensions
-      const rect = templateRoot.getBoundingClientRect()
-      const actualWidth = rect.width
-      const actualHeight = rect.height
+      // Create a temporary container for export at actual size
+      const exportContainer = document.createElement('div')
+      exportContainer.style.position = 'absolute'
+      exportContainer.style.left = '-9999px'
+      exportContainer.style.top = '0'
+      exportContainer.style.width = '800px'
+      exportContainer.style.backgroundColor = '#ffffff'
       
-      // Save and remove scale transform from parent
-      const previewEl = previewRef.current
-      const originalClassName = previewEl.className
-      const originalTransform = previewEl.style.transform
+      // Clone the template content
+      const clone = templateRoot.cloneNode(true) as HTMLElement
+      clone.style.transform = 'none'
+      clone.style.width = '800px'
+      exportContainer.appendChild(clone)
+      document.body.appendChild(exportContainer)
       
-      // Remove scale classes and transform for capture
-      previewEl.className = originalClassName.replace(/scale-\\[[^\\]]+\\]/g, '').replace(/lg:scale-\\[[^\\]]+\\]/g, '')
-      previewEl.style.transform = 'none'
-      
-      // Force layout recalc
-      await new Promise(resolve => setTimeout(resolve, 200))
+      // Wait for any images in clone to load
+      const cloneImages = clone.getElementsByTagName('img')
+      for (const img of Array.from(cloneImages)) {
+        if (!img.complete) {
+          await new Promise<void>((resolve) => {
+            img.onload = () => resolve()
+            img.onerror = () => resolve()
+          })
+        }
+      }
 
       setExportProgress(50)
 
-      // Capture at actual pixel dimensions (not logical)
-      const dataUrl = await toJpeg(templateRoot, {
+      // Capture the clone at actual size
+      const dataUrl = await toJpeg(exportContainer, {
         quality: 0.95,
-        pixelRatio: 2, // 2x for retina quality
+        pixelRatio: 2,
         cacheBust: true,
         backgroundColor: '#ffffff'
       })
 
       setExportProgress(70)
 
-      // Restore original styles
-      previewEl.className = originalClassName
-      previewEl.style.transform = originalTransform
+      // Remove temporary container
+      document.body.removeChild(exportContainer)
 
-      // Calculate PDF dimensions to fit content properly
+      // Create PDF with A4 dimensions
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
       
-      // Calculate scale to fit content width to page width
-      const imgAspectRatio = actualHeight / actualWidth
-      const pdfWidth = pageWidth
-      const pdfHeight = Math.min(pageWidth * imgAspectRatio, pageHeight) // Cap at page height
-      
-      // Center vertically if content is shorter than page
-      const yOffset = pdfHeight < pageHeight ? (pageHeight - pdfHeight) / 2 : 0
-      
-      pdf.addImage(dataUrl, 'JPEG', 0, yOffset, pdfWidth, pdfHeight)
+      // Add image to PDF - fit to page width, auto height
+      pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pageHeight)
 
       setExportProgress(90)
       
