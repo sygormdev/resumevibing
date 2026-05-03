@@ -53,6 +53,7 @@ export default function Home() {
 
       setExportProgress(20)
 
+      // Find the template element (min-h-screen inside preview)
       const templateRoot = previewRef.current.querySelector('.min-h-screen') as HTMLElement
       
       if (!templateRoot) {
@@ -74,28 +75,40 @@ export default function Home() {
 
       setExportProgress(40)
 
-      // Capture as JPEG
+      // Store original styles
+      const originalTransform = templateRoot.style.transform
+      const originalWidth = templateRoot.style.width
+      
+      // Remove transform and set actual size for capture
+      templateRoot.style.transform = 'none'
+      templateRoot.style.width = '800px'
+
+      setExportProgress(50)
+
+      // Capture at higher quality with correct dimensions
       const dataUrl = await toJpeg(templateRoot, {
-        quality: 0.85,
-        pixelRatio: 1.5,
+        quality: 0.95,
+        pixelRatio: 2,
         cacheBust: true,
         backgroundColor: '#ffffff'
       })
 
-      setExportProgress(60)
+      setExportProgress(70)
 
+      // Restore original styles
+      templateRoot.style.transform = originalTransform
+      templateRoot.style.width = originalWidth
+
+      // Create PDF with A4 dimensions
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
 
-      // A4 dimensions in mm: 210 x 297
-      const a4Width = 210
-      const a4Height = 297
-
-      setExportProgress(70)
-      pdf.addImage(dataUrl, 'JPEG', 0, 0, a4Width, a4Height)
+      // Add image to PDF with exact A4 size
+      pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pageHeight)
 
       setExportProgress(90)
+      
       const pdfBlob = pdf.output('blob')
       const url = URL.createObjectURL(pdfBlob)
 
