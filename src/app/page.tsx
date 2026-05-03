@@ -80,53 +80,37 @@ export default function Home() {
 
       setExportProgress(40)
 
-      // Get actual content dimensions from bounding rect
+      // Get the actual rendered dimensions
       const rect = templateEl.getBoundingClientRect()
       const displayWidth = rect.width
       const displayHeight = rect.height
       
-      // The scale is applied via CSS class, so bounding rect gives us SCALED size
-      // We need to find the actual content size
-      // The container has transform: scale(0.4) which makes everything 40% smaller
-      // So actual size = display size / 0.4 = display size * 2.5
-      const actualWidth = displayWidth * 2.5
-      const actualHeight = displayHeight * 2.5
+      // Calculate actual content size (accounting for scale)
+      // The scale is 0.4 on mobile, 0.5 on desktop - we detect from display size
+      // For mobile: display is 40% of actual, so actual = display / 0.4
+      // For desktop: display is 50% of actual, so actual = display / 0.5
+      const scaleFactor = displayWidth > 500 ? 0.5 : 0.4
+      const actualWidth = displayWidth / scaleFactor
+      const actualHeight = displayHeight / scaleFactor
       
-      // Create a hidden container with exact dimensions
-      const exportDiv = document.createElement('div')
-      exportDiv.style.position = 'absolute'
-      exportDiv.style.left = '-9999px'
-      exportDiv.style.top = '0px'
-      exportDiv.style.width = actualWidth + 'px'
-      exportDiv.style.height = actualHeight + 'px'
-      exportDiv.style.backgroundColor = '#ffffff'
-      exportDiv.style.overflow = 'hidden'
-      
-      // Clone the template content
-      const clone = templateEl.cloneNode(true) as HTMLElement
-      clone.style.transform = 'none'
-      clone.style.width = actualWidth + 'px'
-      clone.style.height = actualHeight + 'px'
-      exportDiv.appendChild(clone)
-      document.body.appendChild(exportDiv)
-      
-      // Wait for layout
-      await new Promise(resolve => setTimeout(resolve, 300))
+      setExportProgress(50)
 
-      setExportProgress(60)
-
-      // Capture the export div
-      const dataUrl = await toJpeg(exportDiv, {
+      // Capture using html-to-image with style overrides
+      // The key is to set style.transform: none on the element itself
+      const dataUrl = await toJpeg(templateEl, {
         quality: 0.95,
         pixelRatio: 2,
+        width: actualWidth,
+        height: actualHeight,
         cacheBust: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        style: {
+          transform: 'none',
+          transformOrigin: 'top left'
+        }
       })
 
       setExportProgress(80)
-
-      // Remove temporary element
-      document.body.removeChild(exportDiv)
 
       // Create PDF
       const pdf = new jsPDF('p', 'mm', 'a4')
