@@ -75,13 +75,10 @@ function LandingPage({ onManuel }: { onManuel: () => void }) {
       <header className="relative z-40 px-4 py-4">
         <div className="max-w-6xl mx-auto">
           <div className="bg-white/30 backdrop-blur-xl rounded-2xl border border-white/40 shadow-2xl px-6 py-4 flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
                 <img src="/resumevibing.png" alt="ResumeVibing" className="h-10 w-auto" />
                 <span className="text-xl font-bold text-gray-800">ResumeVibing</span>
               </div>
-              <p className="text-gray-600 text-xs mt-1 ml-1">Build your perfect resume in minutes</p>
-            </div>
             <div className="flex items-center gap-3">
               <button className="px-5 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all shadow-lg">
                 Create
@@ -98,7 +95,7 @@ function LandingPage({ onManuel }: { onManuel: () => void }) {
       </header>
 
       {/* Center Content */}
-      <div className="relative z-30 flex-1 flex items-end pb-20 justify-center">
+      <div className="relative z-30 flex-1 flex flex-col items-center justify-center">
         <button 
           onClick={onManuel}
           className="px-14 py-5 bg-white/30 backdrop-blur-xl text-gray-800 text-2xl font-bold rounded-2xl hover:bg-white/50 transition-all transform hover:scale-105 shadow-xl border border-white/50"
@@ -108,6 +105,7 @@ function LandingPage({ onManuel }: { onManuel: () => void }) {
         >
           Create
         </button>
+        <p className="mt-6 text-gray-600 text-sm">Build your perfect resume in minutes</p>
       </div>
     </div>
   )
