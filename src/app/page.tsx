@@ -30,10 +30,36 @@ function LandingPage({ onCreate }: { onCreate: () => void }) {
       className="min-h-screen bg-cover bg-center bg-no-repeat flex flex-col"
       style={{ backgroundImage: 'url(/resumevibingbg.png)' }}
     >
+      {/* Glass Navbar */}
+      <header className="sticky top-0 z-40 px-4 py-3">
+        <div className="max-w-7xl mx-auto">
+          <div className="backdrop-blur-xl bg-white/20 rounded-2xl border border-white/30 shadow-lg px-6 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/resumevibing.png" alt="ResumeVibing" className="h-8 w-auto" />
+              <span className="text-lg font-bold text-white">ResumeVibing</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={onCreate}
+                className="px-4 py-2 bg-white/30 backdrop-blur-sm text-white font-medium rounded-lg hover:bg-white/40 transition-all border border-white/20"
+              >
+                Create
+              </button>
+              <button
+                className="px-4 py-2 bg-white/10 backdrop-blur-sm text-white font-medium rounded-lg hover:bg-white/20 transition-all border border-white/20"
+              >
+                Manuel
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Center Content */}
       <div className="flex-1 flex items-center justify-center">
         <button
           onClick={onCreate}
-          className="px-16 py-5 bg-gray-900 text-white text-2xl font-bold rounded-2xl hover:bg-gray-800 transition-all transform hover:scale-105 shadow-2xl"
+          className="px-16 py-5 bg-white/20 backdrop-blur-xl text-white text-2xl font-bold rounded-2xl hover:bg-white/30 transition-all transform hover:scale-105 shadow-2xl border border-white/30"
         >
           Create
         </button>
