@@ -66,67 +66,67 @@ export default function Home() {
     setPdfReady(false)
 
     try {
-      setExportProgress(10)
-      
       const { toJpeg } = await import('html-to-image')
       const { jsPDF } = await import('jspdf')
 
-      setExportProgress(20)
-
-      // Find the actual template element
-      const templateEl = previewRef.current.querySelector('.min-h-screen') as HTMLElement
-      
-      if (!templateEl) {
-        throw new Error('Template not found')
-      }
-
-      setExportProgress(30)
-
-      // Wait for images to fully load
-      const images = templateEl.getElementsByTagName('img')
-      await Promise.all(
-        Array.from(images).map(
-          (img) =>
-            new Promise<void>((resolve) => {
-              if (img.complete) {
-                resolve()
-              } else {
-                img.onload = () => resolve()
-                img.onerror = () => resolve()
-              }
-            })
-        )
-      )
-
-      setExportProgress(40)
-      
-      // Remove the scale transform
-      const previewContainer = previewRef.current
-      previewContainer.style.transform = 'none'
-      
-      await new Promise(resolve => setTimeout(resolve, 300))
-      
-      setExportProgress(50)
-
-      // Capture
-      const dataUrl = await toJpeg(templateEl, {
-        quality: 0.95,
-        pixelRatio: 2,
-        cacheBust: true,
-        backgroundColor: '#ffffff'
-      })
-
-      setExportProgress(80)
-
-      // Restore transform
-      previewContainer.style.transform = ''
-
-      // Create PDF
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
       
-      pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pageHeight)
+      const totalPages = cvData.pages.length
+
+      for (let i = 0; i < totalPages; i++) {
+        setExportProgress(10 + (i / totalPages) * 80)
+        
+        // Temporarily set active page
+        setCvData(prev => ({ ...prev, activePage: i }))
+        
+        // Wait for render
+        await new Promise(resolve => setTimeout(resolve, 200))
+        
+        // Find the template element
+        const templateEl = previewRef.current.querySelector('.min-h-screen') as HTMLElement
+        if (!templateEl) continue
+
+        // Wait for images
+        const images = templateEl.getElementsByTagName('img')
+        await Promise.all(
+          Array.from(images).map(
+            (img) =>
+              new Promise<void>((resolve) => {
+                if (img.complete) resolve()
+                else {
+                  img.onload = () => resolve()
+                  img.onerror = () => resolve()
+                }
+              })
+          )
+        )
+
+        // Remove scale transform
+        const previewContainer = previewRef.current
+        previewContainer.style.transform = 'none'
+        await new Promise(resolve => setTimeout(resolve, 200))
+
+        // Capture this page
+        const dataUrl = await toJpeg(templateEl, {
+          quality: 0.95,
+          pixelRatio: 2,
+          cacheBust: true,
+          backgroundColor: '#ffffff'
+        })
+
+        // Restore transform
+        previewContainer.style.transform = ''
+
+        // Add page to PDF (skip first page, it exists by default)
+        if (i > 0) {
+          pdf.addPage()
+        }
+        
+        // Add image to current page
+        pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pageHeight)
+      }
 
       setExportProgress(95)
       
