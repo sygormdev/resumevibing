@@ -50,6 +50,25 @@ export default function Home() {
     })
   }
 
+  const handleDeletePage = (index: number) => {
+    // Don't delete if only one page left
+    if (cvData.pages.length <= 1) return
+    
+    const newPages = cvData.pages.filter((_, i) => i !== index)
+    let newActivePage = cvData.activePage
+    
+    // If deleting the active page or a page before it, adjust active page
+    if (index <= newActivePage) {
+      newActivePage = Math.max(0, newActivePage - 1)
+    }
+    
+    setCvData({
+      ...cvData,
+      pages: newPages,
+      activePage: newActivePage
+    })
+  }
+
   const handleSelectPage = (index: number) => {
     setCvData({
       ...cvData,
@@ -312,17 +331,29 @@ export default function Home() {
             <div className="flex justify-center mb-3">
               <div className="flex gap-2 items-center bg-white px-4 py-2 rounded-xl shadow-lg">
                 {cvData.pages.map((page, index) => (
-                  <button
-                    key={page.id}
-                    onClick={() => handleSelectPage(index)}
-                    className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
-                      cvData.activePage === index
-                        ? 'bg-gray-900 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {page.name}
-                  </button>
+                  <div key={page.id} className="relative group">
+                    <button
+                      onClick={() => handleSelectPage(index)}
+                      className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
+                        cvData.activePage === index
+                          ? 'bg-gray-900 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {page.name}
+                    </button>
+                    {cvData.pages.length > 1 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleDeletePage(index)
+                        }}
+                        className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
                 ))}
                 <button
                   onClick={handleAddPage}
