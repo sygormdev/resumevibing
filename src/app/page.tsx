@@ -243,31 +243,6 @@ export default function Home() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col lg:flex-row">
 
-        {/* Mobile Page Selector */}
-        <div className="lg:hidden w-full bg-white border-b border-gray-200 p-3">
-          <div className="flex gap-2 items-center">
-            {cvData.pages.map((page, index) => (
-              <button
-                key={page.id}
-                onClick={() => handleSelectPage(index)}
-                className={`px-3 py-2 text-sm rounded-lg font-medium transition-colors ${
-                  cvData.activePage === index
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {page.name}
-              </button>
-            ))}
-            <button
-              onClick={handleAddPage}
-              className="px-3 py-2 text-sm rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
-            >
-              + Page
-            </button>
-          </div>
-        </div>
-
         {/* Template Selection - Horizontal on Mobile */}
         <div className="lg:hidden w-full bg-white border-b border-gray-200 p-3 overflow-x-auto">
           <div className="flex gap-2">
@@ -288,31 +263,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Page Indicator - Center of screen */}
-        <div className="hidden lg:flex w-full bg-white border-b border-gray-200 p-3 justify-center">
-          <div className="flex gap-3 items-center">
-            {cvData.pages.map((page, index) => (
-              <button
-                key={page.id}
-                onClick={() => handleSelectPage(index)}
-                className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
-                  cvData.activePage === index
-                    ? 'bg-gray-900 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {page.name}
-              </button>
-            ))}
-            <button
-              onClick={handleAddPage}
-              className="px-3 py-2 text-sm rounded-lg font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 border border-dashed border-gray-300"
-            >
-              + Add
-            </button>
-          </div>
-        </div>
-
         {/* Editor Panel */}
         <div className={`w-full lg:w-[400px] ${showEditor ? 'block' : 'hidden lg:block'} flex-shrink-0`}>
           <div className="h-[calc(100vh-56px)] lg:h-[calc(100vh-56px)] overflow-y-auto bg-gray-50">
@@ -326,6 +276,31 @@ export default function Home() {
             {/* Mobile preview label */}
             <div className="flex justify-center mb-2 lg:mb-4">
               <span className="text-xs text-gray-500 bg-white px-3 py-1 rounded-full shadow">Live Preview</span>
+            </div>
+            
+            {/* Page Selector - Below Live Preview label */}
+            <div className="flex justify-center mb-3">
+              <div className="flex gap-2 items-center bg-white px-4 py-2 rounded-xl shadow-lg">
+                {cvData.pages.map((page, index) => (
+                  <button
+                    key={page.id}
+                    onClick={() => handleSelectPage(index)}
+                    className={`px-4 py-2 text-sm rounded-lg font-medium transition-all ${
+                      cvData.activePage === index
+                        ? 'bg-gray-900 text-white'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    {page.name}
+                  </button>
+                ))}
+                <button
+                  onClick={handleAddPage}
+                  className="px-3 py-2 text-sm rounded-lg font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 border border-dashed border-gray-300"
+                >
+                  + Add
+                </button>
+              </div>
             </div>
             
             {/* Template selector on desktop */}
