@@ -23,7 +23,27 @@ function TemplatePreview({ templateId, data, pageIndex }: { templateId: string; 
   }
 }
 
+// Landing Page Component
+function LandingPage({ onCreate }: { onCreate: () => void }) {
+  return (
+    <div 
+      className="min-h-screen bg-cover bg-center bg-no-repeat flex flex-col"
+      style={{ backgroundImage: 'url(/resumevibingbg.png)' }}
+    >
+      <div className="flex-1 flex items-center justify-center">
+        <button
+          onClick={onCreate}
+          className="px-16 py-5 bg-gray-900 text-white text-2xl font-bold rounded-2xl hover:bg-gray-800 transition-all transform hover:scale-105 shadow-2xl"
+        >
+          Create
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
+  const [showLanding, setShowLanding] = useState(true)
   const [cvData, setCvData] = useState<CVData>(sampleCVData)
   const [selectedTemplate, setSelectedTemplate] = useState('1')
   const [isExporting, setIsExporting] = useState(false)
@@ -33,6 +53,10 @@ export default function Home() {
   const [showEditor, setShowEditor] = useState(true)
   const [showSettings, setShowSettings] = useState(false)
   const previewRef = useRef<HTMLDivElement>(null)
+
+  const handleCreate = () => {
+    setShowLanding(false)
+  }
 
   const handleTemplateClick = (templateId: string) => {
     setSelectedTemplate(templateId)
@@ -51,13 +75,11 @@ export default function Home() {
   }
 
   const handleDeletePage = (index: number) => {
-    // Don't delete if only one page left
     if (cvData.pages.length <= 1) return
     
     const newPages = cvData.pages.filter((_, i) => i !== index)
     let newActivePage = cvData.activePage
     
-    // If deleting the active page or a page before it, adjust active page
     if (index <= newActivePage) {
       newActivePage = Math.max(0, newActivePage - 1)
     }
@@ -99,17 +121,13 @@ export default function Home() {
       for (let i = 0; i < totalPages; i++) {
         setExportProgress(10 + (i / totalPages) * 80)
         
-        // Temporarily set active page
         setCvData(prev => ({ ...prev, activePage: i }))
         
-        // Wait for render
         await new Promise(resolve => setTimeout(resolve, 300))
         
-        // Find the template element
         const templateEl = previewRef.current.querySelector('.min-h-screen') as HTMLElement
         if (!templateEl) continue
 
-        // Wait for images
         const images = templateEl.getElementsByTagName('img')
         await Promise.all(
           Array.from(images).map(
@@ -124,7 +142,6 @@ export default function Home() {
           )
         )
 
-        // Make sure container is visible for capture
         const previewContainer = previewRef.current
         const originalTransform = previewContainer.style.transform
         const originalWidth = previewContainer.style.width
@@ -133,19 +150,14 @@ export default function Home() {
         previewContainer.style.overflow = 'visible'
         previewContainer.style.transform = 'none'
         
-        // Force recalculation
         await new Promise(resolve => setTimeout(resolve, 200))
 
-        // Get actual rendered dimensions from the template element itself
-        // This works on both mobile and desktop because we remove the scale transform
         const actualWidth = templateEl.offsetWidth
         const actualHeight = templateEl.offsetHeight
         
-        // Fallback if dimensions are 0
         const captureWidth = actualWidth > 0 ? actualWidth : 800
         const captureHeight = actualHeight > 0 ? actualHeight : 1131
 
-        // Capture this page with explicit dimensions matching actual content
         const dataUrl = await toJpeg(templateEl, {
           quality: 0.95,
           pixelRatio: 2,
@@ -155,26 +167,20 @@ export default function Home() {
           height: captureHeight
         })
 
-        // Restore preview container styles
         previewContainer.style.transform = originalTransform
         previewContainer.style.width = originalWidth
         previewContainer.style.overflow = originalOverflow
 
-        // Add page to PDF (skip first page, it exists by default)
         if (i > 0) {
           pdf.addPage()
         }
         
-        // Calculate height to maintain aspect ratio
         const imgHeight = pageWidth * (captureHeight / captureWidth)
-        
-        // Add image to PDF
         pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, imgHeight)
       }
 
       setExportProgress(95)
       
-      // Restore original active page
       setCvData(prev => ({ ...prev, activePage: originalActivePage }))
       
       const pdfBlob = pdf.output('blob')
@@ -185,7 +191,6 @@ export default function Home() {
       setDownloadUrl(url)
     } catch (error) {
       console.error('PDF export failed:', error)
-      // Restore original state on error
       setCvData(prev => ({ ...prev, activePage: originalActivePage }))
       alert('PDF export failed: ' + (error instanceof Error ? error.message : 'Unknown error'))
       setIsExporting(false)
@@ -206,6 +211,11 @@ export default function Home() {
     setExportProgress(0)
     setDownloadUrl(null)
     setPdfReady(false)
+  }
+
+  // Show landing page
+  if (showLanding) {
+    return <LandingPage onCreate={handleCreate} />
   }
 
   return (
@@ -273,7 +283,6 @@ export default function Home() {
           >
             ⚙️ Settings
           </button>
-          {/* Mobile toggle buttons */}
           <button
             onClick={() => setShowEditor(!showEditor)}
             className="lg:hidden px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
