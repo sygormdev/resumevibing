@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useRef, Suspense } from 'react'
+import { useState, Suspense } from 'react'
+import { useRef } from 'react'
 import { CVData } from '@/types/cv'
 import { templates, sampleCVData } from '@/components/templates'
 import CVEditor from '@/components/CVEditor'
@@ -31,6 +32,7 @@ export default function Home() {
   const [pdfReady, setPdfReady] = useState(false)
   const [showEditor, setShowEditor] = useState(true)
   const previewRef = useRef<HTMLDivElement>(null)
+  void previewRef
 
   const handleTemplateClick = (templateId: string) => {
     setSelectedTemplate(templateId)

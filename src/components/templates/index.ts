@@ -66,20 +66,20 @@ export const sampleCVData = {
     }
   ],
   skills: [
-    { id: '1', name: 'JavaScript/TypeScript', level: 'expert', category: 'Frontend' },
-    { id: '2', name: 'React & Next.js', level: 'expert', category: 'Frontend' },
-    { id: '3', name: 'Node.js & Express', level: 'advanced', category: 'Backend' },
-    { id: '4', name: 'Python & Django', level: 'intermediate', category: 'Backend' },
-    { id: '5', name: 'PostgreSQL & MongoDB', level: 'advanced', category: 'Database' },
-    { id: '6', name: 'AWS & Docker', level: 'advanced', category: 'DevOps' }
+    { id: '1', name: 'JavaScript/TypeScript', level: 'expert' as const, category: 'Frontend' },
+    { id: '2', name: 'React & Next.js', level: 'expert' as const, category: 'Frontend' },
+    { id: '3', name: 'Node.js & Express', level: 'advanced' as const, category: 'Backend' },
+    { id: '4', name: 'Python & Django', level: 'intermediate' as const, category: 'Backend' },
+    { id: '5', name: 'PostgreSQL & MongoDB', level: 'advanced' as const, category: 'Database' },
+    { id: '6', name: 'AWS & Docker', level: 'advanced' as const, category: 'DevOps' }
   ],
   languages: [
-    { id: '1', name: 'English', level: 'native' },
-    { id: '2', name: 'Spanish', level: 'conversational' }
+    { id: '1', name: 'English', level: 'native' as const },
+    { id: '2', name: 'Spanish', level: 'conversational' as const }
   ],
   certifications: [
-    { id: '1', name: 'AWS Solutions Architect', issuer: 'Amazon Web Services', date: 'Mar 2023', url: '' },
-    { id: '2', name: 'Google Cloud Professional', issuer: 'Google', date: 'Nov 2022', url: '' }
+    { id: '1', name: 'AWS Solutions Architect', issuer: 'Amazon Web Services', date: 'Mar 2023', expiry: '', url: '' },
+    { id: '2', name: 'Google Cloud Professional', issuer: 'Google', date: 'Nov 2022', expiry: '', url: '' }
   ],
   projects: [
     { id: '1', name: 'E-Commerce Platform', description: 'Full-stack marketplace with payment integration and real-time inventory management', technologies: ['React', 'Node.js', 'PostgreSQL'], startDate: '2022', endDate: '2022', url: '' },
