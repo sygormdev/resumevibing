@@ -116,13 +116,28 @@ export default function Home() {
       // Remove temporary container
       document.body.removeChild(exportContainer)
 
-      // Create PDF with A4 dimensions
+      // Create PDF - jsPDF uses 72 DPI, A4 is 210x297mm
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
-      const pageHeight = pdf.internal.pageSize.getHeight()
       
-      // Add image to PDF - fit to page width, auto height
-      pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pageHeight)
+      // Create temp image to get actual dimensions
+      const img = new Image()
+      img.src = dataUrl
+      await new Promise<void>((resolve) => {
+        img.onload = () => resolve()
+        img.onerror = () => resolve()
+      })
+      
+      // Calculate height to maintain aspect ratio
+      const imgWidth = img.naturalWidth
+      const imgHeight = img.naturalHeight
+      const aspectRatio = imgHeight / imgWidth
+      
+      // Fit to page width
+      const pdfWidth = pageWidth
+      const pdfHeight = pdfWidth * aspectRatio
+      
+      pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight)
 
       setExportProgress(90)
       
