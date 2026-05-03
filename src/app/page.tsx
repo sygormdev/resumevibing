@@ -28,7 +28,7 @@ function LandingPage({ onManuel }: { onManuel: () => void }) {
   return (
     <div 
       className="min-h-screen bg-cover bg-center bg-no-repeat flex flex-col"
-      style={{ backgroundImage: 'url(/resumevibingbg.png)' }}
+      style={{ backgroundImage: 'url(/backgroundvibe.png)' }}
     >
       {/* Glass Navbar */}
       <header className="sticky top-0 z-40 px-4 py-4">
@@ -58,9 +58,12 @@ function LandingPage({ onManuel }: { onManuel: () => void }) {
 
       {/* Center Content */}
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-white/80 text-lg mb-4">Start building your professional resume today</p>
-        </div>
+        <button 
+          onClick={onManuel}
+          className="px-16 py-6 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-2xl font-bold rounded-2xl hover:from-purple-500 hover:to-pink-500 transition-all transform hover:scale-105 shadow-2xl"
+        >
+          Create
+        </button>
       </div>
     </div>
   )
