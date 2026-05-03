@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
-import { useRef } from 'react'
+import { useState, Suspense, useRef } from 'react'
 import { CVData } from '@/types/cv'
 import { templates, sampleCVData } from '@/components/templates'
 import CVEditor from '@/components/CVEditor'
@@ -32,7 +31,6 @@ export default function Home() {
   const [pdfReady, setPdfReady] = useState(false)
   const [showEditor, setShowEditor] = useState(true)
   const previewRef = useRef<HTMLDivElement>(null)
-  void previewRef
 
   const handleTemplateClick = (templateId: string) => {
     setSelectedTemplate(templateId)
@@ -63,59 +61,44 @@ export default function Home() {
 
       setExportProgress(30)
 
-      // Wait for any images to fully load
+      // Wait for images to load
       const images = templateRoot.getElementsByTagName('img')
-      await Promise.all(
-        Array.from(images).map(
-          (img) =>
-            new Promise<void>((resolve) => {
-              if (img.complete) {
-                resolve()
-              } else {
-                img.onload = () => resolve()
-                img.onerror = () => resolve()
-              }
-            })
-        )
-      )
+      for (const img of Array.from(images)) {
+        if (!img.complete) {
+          await new Promise<void>((resolve) => {
+            img.onload = () => resolve()
+            img.onerror = () => resolve()
+          })
+        }
+      }
 
       setExportProgress(40)
 
-      // Capture at 2x pixel ratio for crisp text
+      // Capture as JPEG
       const dataUrl = await toJpeg(templateRoot, {
         quality: 0.85,
-        pixelRatio: 2,
+        pixelRatio: 1.5,
         cacheBust: true,
         backgroundColor: '#ffffff'
       })
 
-      setExportProgress(70)
+      setExportProgress(60)
 
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
-      
-      // Create temp image to get dimensions
-      const img = new Image()
-      await new Promise<void>((resolve) => {
-        img.onload = () => resolve()
-        img.onerror = () => resolve()
-        img.src = dataUrl
-      })
-      
-      const pxToMm = 25.4 / 96
-      const imgWidthMm = img.naturalWidth * pxToMm
-      const imgHeightMm = img.naturalHeight * pxToMm
-      
-      const scale = pageWidth / imgWidthMm
-      const scaledHeight = imgHeightMm * scale
-      
-      pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, scaledHeight)
-      
+      const pageHeight = pdf.internal.pageSize.getHeight()
+
+      // A4 dimensions in mm: 210 x 297
+      const a4Width = 210
+      const a4Height = 297
+
+      setExportProgress(70)
+      pdf.addImage(dataUrl, 'JPEG', 0, 0, a4Width, a4Height)
+
       setExportProgress(90)
-      
       const pdfBlob = pdf.output('blob')
       const url = URL.createObjectURL(pdfBlob)
-      
+
       setExportProgress(100)
       setPdfReady(true)
       setDownloadUrl(url)
@@ -203,7 +186,7 @@ export default function Home() {
             disabled={isExporting}
             className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 disabled:opacity-50"
           >
-            {isExporting ? '...' : '📄 Export'}
+            {isExporting ? '...' : 'Export'}
           </button>
         </div>
       </header>
