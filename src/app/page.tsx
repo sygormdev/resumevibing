@@ -75,29 +75,40 @@ export default function Home() {
 
       setExportProgress(40)
 
-      // Store original className
-      const originalClassName = previewRef.current.className
+      // Remove scale transforms by setting inline styles on templateRoot
+      const computedStyle = window.getComputedStyle(templateRoot)
+      const originalTransform = templateRoot.style.transform
+      const originalWidth = templateRoot.style.width
       
-      // Remove scale transforms temporarily for capture
-      previewRef.current.className = originalClassName.replace(/scale-\[[^\]]+\]/g, '').replace(/lg:scale-\[[^\]]+\]/g, '')
-      previewRef.current.style.width = '800px'
+      // Force remove transform and set width for full capture
+      templateRoot.style.transform = 'none'
+      templateRoot.style.width = computedStyle.width
 
       setExportProgress(50)
 
       // Small delay to let DOM update
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 200))
 
-      const dataUrl = await toJpeg(templateRoot, {
+      // Try capturing the parent which has the ref
+      const captureTarget = previewRef.current
+      
+      const dataUrl = await toJpeg(captureTarget, {
         quality: 0.95,
-        pixelRatio: 2,
+        pixelRatio: 1,
         cacheBust: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        filter: (node) => {
+          // Don't capture the preview container itself, only children
+          if (node === captureTarget) return true
+          return true
+        }
       })
 
       setExportProgress(70)
 
       // Restore original styles
-      previewRef.current.className = originalClassName
+      templateRoot.style.transform = originalTransform
+      templateRoot.style.width = originalWidth
 
       // Create PDF with A4 dimensions
       const pdf = new jsPDF('p', 'mm', 'a4')
