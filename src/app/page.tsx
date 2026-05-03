@@ -94,32 +94,13 @@ export default function Home() {
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
       
-      // Calculate dimensions from the data URL directly
-      const imgData = dataUrl.replace(/^data:image\/png;base64,/, '')
-      const imgBytes = atob(imgData)
-      const imgBuffer = new ArrayBuffer(imgBytes.length)
-      const imgArray = new Uint8Array(imgBuffer)
-      for (let i = 0; i < imgBytes.length; i++) {
-        imgArray[i] = imgBytes.charCodeAt(i)
-      }
-      
-      const blob = new Blob([imgArray], { type: 'image/png' })
-      const imgUrl = URL.createObjectURL(blob)
-      
+      // Create temp image to get dimensions
       const img = new Image()
-      img.src = imgUrl
-      
-      // Create a promise that resolves when image loads
       await new Promise<void>((resolve) => {
-        if (img.complete && img.naturalWidth > 0) {
-          resolve()
-        } else {
-          img.onload = () => resolve()
-          img.onerror = () => resolve() // Continue even on error
-        }
+        img.onload = () => resolve()
+        img.onerror = () => resolve()
+        img.src = dataUrl
       })
-      
-      URL.revokeObjectURL(imgUrl)
       
       const pxToMm = 25.4 / 96
       const imgWidthMm = img.naturalWidth * pxToMm
