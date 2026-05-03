@@ -79,56 +79,42 @@ export default function Home() {
       )
 
       setExportProgress(40)
-
-      // Get the actual rendered dimensions
-      const rect = templateEl.getBoundingClientRect()
-      const displayWidth = rect.width
-      const displayHeight = rect.height
       
-      // Calculate actual content size (accounting for scale)
-      // The scale is 0.4 on mobile, 0.5 on desktop - we detect from display size
-      // For mobile: display is 40% of actual, so actual = display / 0.4
-      // For desktop: display is 50% of actual, so actual = display / 0.5
-      const scaleFactor = displayWidth > 500 ? 0.5 : 0.4
-      const actualWidth = displayWidth / scaleFactor
-      const actualHeight = displayHeight / scaleFactor
+      // Save original styles
+      const previewContainer = previewRef.current
+      const originalTransform = previewContainer.style.transform
+      const originalWidth = previewContainer.style.width
+      
+      // Set container to actual content width (800px max from template)
+      // The content should fill this width naturally
+      previewContainer.style.transform = 'none'
+      previewContainer.style.width = '800px'
+      
+      // Wait for layout recalculation
+      await new Promise(resolve => setTimeout(resolve, 200))
       
       setExportProgress(50)
 
-      // Capture using html-to-image with style overrides
-      // The key is to set style.transform: none on the element itself
+      // Capture - the element will be captured at its natural size within 800px
       const dataUrl = await toJpeg(templateEl, {
         quality: 0.95,
         pixelRatio: 2,
-        width: actualWidth,
-        height: actualHeight,
         cacheBust: true,
-        backgroundColor: '#ffffff',
-        style: {
-          transform: 'none',
-          transformOrigin: 'top left'
-        }
+        backgroundColor: '#ffffff'
       })
 
       setExportProgress(80)
 
-      // Create PDF
+      // Restore original styles
+      previewContainer.style.transform = originalTransform
+      previewContainer.style.width = originalWidth
+
+      // Create PDF - fit to page width
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
       
-      // Calculate height to maintain aspect ratio
-      const img = new Image()
-      img.src = dataUrl
-      await new Promise<void>((resolve) => {
-        img.onload = () => resolve()
-        img.onerror = () => resolve()
-      })
-      
-      const imgAspectRatio = img.naturalHeight / img.naturalWidth
-      const pdfWidth = pageWidth
-      const pdfHeight = pdfWidth * imgAspectRatio
-      
-      pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight)
+      pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pageHeight)
 
       setExportProgress(95)
       
