@@ -27,27 +27,68 @@ function TemplatePreview({ templateId, data, pageIndex }: { templateId: string; 
 function LandingPage({ onManuel }: { onManuel: () => void }) {
   return (
     <div 
-      className="min-h-screen bg-cover bg-center bg-no-repeat flex flex-col"
-      style={{ backgroundImage: 'url(/backgroundvibe.png)' }}
+      className="min-h-screen relative overflow-hidden"
+      style={{
+        background: 'radial-gradient(ellipse at center, #fefeff 0%, #fefeff 35%, #B7E8EB 100%)'
+      }}
     >
+      {/* Animated Ocean Waves */}
+      <div className="ocean">
+        <div className="wave"></div>
+        <div className="wave"></div>
+      </div>
+
+      <style jsx>{`
+        .ocean {
+          height: 5%;
+          width: 100%;
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          background: #015871;
+        }
+        .wave {
+          background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/85486/wave.svg) repeat-x;
+          position: absolute;
+          top: -198px;
+          width: 6400px;
+          height: 198px;
+          animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) infinite;
+          transform: translate3d(0, 0, 0);
+        }
+        .wave:nth-of-type(2) {
+          top: -175px;
+          animation: wave 7s cubic-bezier(0.36, 0.45, 0.63, 0.53) -0.125s infinite, swell 7s ease -1.25s infinite;
+          opacity: 1;
+        }
+        @keyframes wave {
+          0% { margin-left: 0; }
+          100% { margin-left: -1600px; }
+        }
+        @keyframes swell {
+          0%, 100% { transform: translate3d(0, -25px, 0); }
+          50% { transform: translate3d(0, 5px, 0); }
+        }
+      `}</style>
+
       {/* Glass Navbar */}
-      <header className="sticky top-0 z-40 px-4 py-4">
+      <header className="relative z-40 px-4 py-4">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-black/40 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl px-6 py-4 flex items-center justify-between">
+          <div className="bg-white/30 backdrop-blur-xl rounded-2xl border border-white/40 shadow-2xl px-6 py-4 flex items-center justify-between">
             <div>
               <div className="flex items-center gap-3">
                 <img src="/resumevibing.png" alt="ResumeVibing" className="h-10 w-auto" />
-                <span className="text-xl font-bold text-white">ResumeVibing</span>
+                <span className="text-xl font-bold text-gray-800">ResumeVibing</span>
               </div>
-              <p className="text-white/60 text-xs mt-1 ml-1">Build your perfect resume in minutes</p>
+              <p className="text-gray-600 text-xs mt-1 ml-1">Build your perfect resume in minutes</p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all shadow-lg">
+              <button className="px-5 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all shadow-lg">
                 Create
               </button>
               <button 
                 onClick={onManuel}
-                className="px-6 py-2.5 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl hover:bg-white/30 transition-all border border-white/30"
+                className="px-5 py-2 bg-white/50 backdrop-blur-sm text-gray-800 font-semibold rounded-xl hover:bg-white/70 transition-all border border-white/60"
               >
                 Manuel
               </button>
@@ -57,12 +98,12 @@ function LandingPage({ onManuel }: { onManuel: () => void }) {
       </header>
 
       {/* Center Content */}
-      <div className="flex-1 flex items-end pb-32 justify-center">
+      <div className="relative z-30 flex-1 flex items-end pb-20 justify-center">
         <button 
           onClick={onManuel}
-          className="px-20 py-8 bg-white/20 backdrop-blur-xl text-white text-3xl font-bold rounded-3xl hover:bg-white/30 transition-all transform hover:scale-105 shadow-2xl border-2 border-white/40"
+          className="px-14 py-5 bg-white/30 backdrop-blur-xl text-gray-800 text-2xl font-bold rounded-2xl hover:bg-white/50 transition-all transform hover:scale-105 shadow-xl border border-white/50"
           style={{
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.4), inset 0 -1px 1px rgba(255,255,255,0.1)'
+            boxShadow: '0 8px 32px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.6)'
           }}
         >
           Create
