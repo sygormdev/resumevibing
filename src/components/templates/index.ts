@@ -29,7 +29,8 @@ export const sampleCVData = {
       startDate: 'Jan 2021',
       endDate: 'Present',
       current: true,
-      description: 'Leading a team of 5 engineers building cloud-native microservices. Architected and implemented RESTful APIs serving 2M+ daily requests. Reduced system latency by 40% through optimization.'
+      description: 'Leading a team of 5 engineers building cloud-native microservices. Architected and implemented RESTful APIs serving 2M+ daily requests. Reduced system latency by 40% through optimization.',
+      achievements: ['Reduced latency by 40%', 'Led team of 5 engineers']
     },
     {
       id: '2',
@@ -38,7 +39,8 @@ export const sampleCVData = {
       startDate: 'Jun 2018',
       endDate: 'Dec 2020',
       current: false,
-      description: 'Built React-based dashboard serving 500+ enterprise clients. Implemented CI/CD pipelines reducing deployment time by 60%. Collaborated with UX team to redesign core features.'
+      description: 'Built React-based dashboard serving 500+ enterprise clients. Implemented CI/CD pipelines reducing deployment time by 60%. Collaborated with UX team to redesign core features.',
+      achievements: []
     },
     {
       id: '3',
@@ -47,7 +49,8 @@ export const sampleCVData = {
       startDate: 'Jul 2016',
       endDate: 'May 2018',
       current: false,
-      description: 'Developed responsive websites using JavaScript and PHP. Maintained legacy systems while migrating to modern frameworks. Participated in agile ceremonies.'
+      description: 'Developed responsive websites using JavaScript and PHP. Maintained legacy systems while migrating to modern frameworks. Participated in agile ceremonies.',
+      achievements: []
     }
   ],
   education: [
@@ -58,28 +61,29 @@ export const sampleCVData = {
       field: 'Computer Science',
       startDate: '2012',
       endDate: '2016',
-      gpa: '3.85'
+      gpa: '3.85',
+      description: ''
     }
   ],
   skills: [
-    { id: '1', name: 'JavaScript/TypeScript' },
-    { id: '2', name: 'React & Next.js' },
-    { id: '3', name: 'Node.js & Express' },
-    { id: '4', name: 'Python & Django' },
-    { id: '5', name: 'PostgreSQL & MongoDB' },
-    { id: '6', name: 'AWS & Docker' }
+    { id: '1', name: 'JavaScript/TypeScript', level: 'expert', category: 'Frontend' },
+    { id: '2', name: 'React & Next.js', level: 'expert', category: 'Frontend' },
+    { id: '3', name: 'Node.js & Express', level: 'advanced', category: 'Backend' },
+    { id: '4', name: 'Python & Django', level: 'intermediate', category: 'Backend' },
+    { id: '5', name: 'PostgreSQL & MongoDB', level: 'advanced', category: 'Database' },
+    { id: '6', name: 'AWS & Docker', level: 'advanced', category: 'DevOps' }
   ],
   languages: [
-    { id: '1', name: 'English', level: 'Native' },
-    { id: '2', name: 'Spanish', level: 'Conversational' }
+    { id: '1', name: 'English', level: 'native' },
+    { id: '2', name: 'Spanish', level: 'conversational' }
   ],
   certifications: [
     { id: '1', name: 'AWS Solutions Architect', issuer: 'Amazon Web Services', date: 'Mar 2023', url: '' },
     { id: '2', name: 'Google Cloud Professional', issuer: 'Google', date: 'Nov 2022', url: '' }
   ],
   projects: [
-    { id: '1', name: 'E-Commerce Platform', description: 'Full-stack marketplace with payment integration and real-time inventory management', technologies: ['React', 'Node.js', 'PostgreSQL'], dates: '2022', url: '' },
-    { id: '2', name: 'Task Management App', description: 'Collaborative project tool with real-time updates and team analytics', technologies: ['Next.js', 'Firebase', 'Tailwind'], dates: '2021', url: '' }
+    { id: '1', name: 'E-Commerce Platform', description: 'Full-stack marketplace with payment integration and real-time inventory management', technologies: ['React', 'Node.js', 'PostgreSQL'], startDate: '2022', endDate: '2022', url: '' },
+    { id: '2', name: 'Task Management App', description: 'Collaborative project tool with real-time updates and team analytics', technologies: ['Next.js', 'Firebase', 'Tailwind'], startDate: '2021', endDate: '2021', url: '' }
   ],
   awards: [
     { id: '1', name: 'Employee of the Year', issuer: 'TechCorp Inc.', date: '2023', description: 'Recognized for exceptional technical leadership' },
