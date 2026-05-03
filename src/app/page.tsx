@@ -80,22 +80,17 @@ export default function Home() {
 
       setExportProgress(40)
       
-      // Save original styles
+      // Just remove the scale transform, keep everything else as-is
+      // html-to-image will capture at the rendered size
       const previewContainer = previewRef.current
-      const originalTransform = previewContainer.style.transform
-      const originalWidth = previewContainer.style.width
-      
-      // Set container to actual content width (800px max from template)
-      // The content should fill this width naturally
       previewContainer.style.transform = 'none'
-      previewContainer.style.width = '800px'
       
-      // Wait for layout recalculation
-      await new Promise(resolve => setTimeout(resolve, 200))
+      // Wait for layout to settle
+      await new Promise(resolve => setTimeout(resolve, 300))
       
       setExportProgress(50)
 
-      // Capture - the element will be captured at its natural size within 800px
+      // Capture the template at its natural rendered size
       const dataUrl = await toJpeg(templateEl, {
         quality: 0.95,
         pixelRatio: 2,
@@ -105,11 +100,10 @@ export default function Home() {
 
       setExportProgress(80)
 
-      // Restore original styles
-      previewContainer.style.transform = originalTransform
-      previewContainer.style.width = originalWidth
+      // Restore transform
+      previewContainer.style.transform = ''
 
-      // Create PDF - fit to page width
+      // Create PDF - use exact A4 dimensions
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
