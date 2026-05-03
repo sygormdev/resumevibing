@@ -72,7 +72,15 @@ export interface Award {
   description: string
 }
 
+export interface CVPage {
+  id: string
+  name: string
+  // Which sections to show on this page
+  sections: string[]
+}
+
 export interface CVData {
+  // All CV content (shared across pages)
   personalInfo: PersonalInfo
   experience: Experience[]
   education: Education[]
@@ -81,8 +89,15 @@ export interface CVData {
   certifications: Certification[]
   projects: Project[]
   awards: Award[]
-  // Settings
+  
+  // Section order for the first page (used if pages array is empty)
   sectionOrder: string[]
+  
+  // Pages - each page can have different sections
+  pages: CVPage[]
+  activePage: number
+  
+  // Settings
   colorScheme: string
   fontFamily: string
 }
@@ -106,6 +121,11 @@ export const defaultCVData: CVData = {
   certifications: [],
   projects: [],
   awards: [],
+  pages: [
+    { id: '1', name: 'Page 1', sections: ['summary', 'experience', 'education', 'skills', 'languages'] },
+    { id: '2', name: 'Page 2', sections: ['certifications', 'projects', 'awards'] }
+  ],
+  activePage: 0,
   sectionOrder: ['experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'awards'],
   colorScheme: '#4f46e5',
   fontFamily: 'Georgia'
@@ -140,4 +160,15 @@ export const fontFamilies = [
   { name: 'Trebuchet (Friendly)', value: '"Trebuchet MS"' },
   { name: 'Courier (Typewriter)', value: 'Courier' },
   { name: 'Palatino (Elegant)', value: 'Palatino' }
+]
+
+export const allSections = [
+  { id: 'summary', name: 'Summary' },
+  { id: 'experience', name: 'Experience' },
+  { id: 'education', name: 'Education' },
+  { id: 'skills', name: 'Skills' },
+  { id: 'languages', name: 'Languages' },
+  { id: 'certifications', name: 'Certifications' },
+  { id: 'projects', name: 'Projects' },
+  { id: 'awards', name: 'Awards' }
 ]

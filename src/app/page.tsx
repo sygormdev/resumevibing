@@ -6,18 +6,18 @@ import { templates, sampleCVData } from '@/components/templates'
 import CVEditor from '@/components/CVEditor'
 import * as TemplateComponents from '@/components/templates'
 
-function TemplatePreview({ templateId, data }: { templateId: string; data: CVData }) {
+function TemplatePreview({ templateId, data, pageIndex }: { templateId: string; data: CVData; pageIndex: number }) {
   switch (templateId) {
-    case '1': return <TemplateComponents.Template1 data={data} />
-    case '2': return <TemplateComponents.Template2 data={data} />
-    case '3': return <TemplateComponents.Template3 data={data} />
-    case '4': return <TemplateComponents.Template4 data={data} />
-    case '5': return <TemplateComponents.Template5 data={data} />
-    case '6': return <TemplateComponents.Template6 data={data} />
-    case '7': return <TemplateComponents.Template7 data={data} />
-    case '8': return <TemplateComponents.Template8 data={data} />
-    case '9': return <TemplateComponents.Template9 data={data} />
-    case '10': return <TemplateComponents.Template10 data={data} />
+    case '1': return <TemplateComponents.Template1 data={data} pageIndex={pageIndex} />
+    case '2': return <TemplateComponents.Template2 data={data} pageIndex={pageIndex} />
+    case '3': return <TemplateComponents.Template3 data={data} pageIndex={pageIndex} />
+    case '4': return <TemplateComponents.Template4 data={data} pageIndex={pageIndex} />
+    case '5': return <TemplateComponents.Template5 data={data} pageIndex={pageIndex} />
+    case '6': return <TemplateComponents.Template6 data={data} pageIndex={pageIndex} />
+    case '7': return <TemplateComponents.Template7 data={data} pageIndex={pageIndex} />
+    case '8': return <TemplateComponents.Template8 data={data} pageIndex={pageIndex} />
+    case '9': return <TemplateComponents.Template9 data={data} pageIndex={pageIndex} />
+    case '10': return <TemplateComponents.Template10 data={data} pageIndex={pageIndex} />
     default: return null
   }
 }
@@ -34,7 +34,25 @@ export default function Home() {
 
   const handleTemplateClick = (templateId: string) => {
     setSelectedTemplate(templateId)
-    setCvData(sampleCVData)
+  }
+
+  const handleAddPage = () => {
+    const newPage = {
+      id: String(cvData.pages.length + 1),
+      name: `Page ${cvData.pages.length + 1}`,
+      sections: ['summary', 'experience', 'skills']
+    }
+    setCvData({
+      ...cvData,
+      pages: [...cvData.pages, newPage]
+    })
+  }
+
+  const handleSelectPage = (index: number) => {
+    setCvData({
+      ...cvData,
+      activePage: index
+    })
   }
 
   const handleExportPDF = async () => {
@@ -80,17 +98,15 @@ export default function Home() {
 
       setExportProgress(40)
       
-      // Just remove the scale transform, keep everything else as-is
-      // html-to-image will capture at the rendered size
+      // Remove the scale transform
       const previewContainer = previewRef.current
       previewContainer.style.transform = 'none'
       
-      // Wait for layout to settle
       await new Promise(resolve => setTimeout(resolve, 300))
       
       setExportProgress(50)
 
-      // Capture the template at its natural rendered size
+      // Capture
       const dataUrl = await toJpeg(templateEl, {
         quality: 0.95,
         pixelRatio: 2,
@@ -103,7 +119,7 @@ export default function Home() {
       // Restore transform
       previewContainer.style.transform = ''
 
-      // Create PDF - use exact A4 dimensions
+      // Create PDF
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
       const pageHeight = pdf.internal.pageSize.getHeight()
@@ -209,6 +225,59 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col lg:flex-row">
+        {/* Left Sidebar - Pages */}
+        <div className="lg:hidden w-full bg-white border-b border-gray-200 p-3">
+          <div className="flex gap-2 items-center">
+            {cvData.pages.map((page, index) => (
+              <button
+                key={page.id}
+                onClick={() => handleSelectPage(index)}
+                className={`px-3 py-2 text-sm rounded-lg font-medium transition-colors ${
+                  cvData.activePage === index
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {page.name}
+              </button>
+            ))}
+            <button
+              onClick={handleAddPage}
+              className="px-3 py-2 text-sm rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
+            >
+              + Add Page
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop Pages Sidebar */}
+        <div className="hidden lg:flex w-48 bg-white border-r border-gray-200 flex-col">
+          <div className="p-4 border-b border-gray-200">
+            <h2 className="text-sm font-semibold text-gray-700 mb-2">Pages</h2>
+            <div className="space-y-2">
+              {cvData.pages.map((page, index) => (
+                <button
+                  key={page.id}
+                  onClick={() => handleSelectPage(index)}
+                  className={`w-full px-3 py-2 text-sm rounded-lg text-left font-medium transition-colors ${
+                    cvData.activePage === index
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {page.name}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={handleAddPage}
+              className="w-full mt-2 px-3 py-2 text-sm rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-1"
+            >
+              <span>+</span> Add Page
+            </button>
+          </div>
+        </div>
+
         {/* Template Selection - Horizontal on Mobile */}
         <div className="lg:hidden w-full bg-white border-b border-gray-200 p-3 overflow-x-auto">
           <div className="flex gap-2">
@@ -270,7 +339,7 @@ export default function Home() {
               <div className="w-full lg:w-full max-w-[800px] shadow-xl rounded-lg overflow-hidden bg-white">
                 <div ref={previewRef} className="transform scale-[0.4] lg:scale-[0.5] origin-top-left w-[250%] lg:w-[200%]">
                   <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
-                    <TemplatePreview templateId={selectedTemplate} data={cvData} />
+                    <TemplatePreview templateId={selectedTemplate} data={cvData} pageIndex={cvData.activePage} />
                   </Suspense>
                 </div>
               </div>

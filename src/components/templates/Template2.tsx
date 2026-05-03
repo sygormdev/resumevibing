@@ -2,14 +2,18 @@ import { CVData } from '@/types/cv'
 
 interface Props {
   data: CVData
+  pageIndex?: number
 }
 
-export default function Template2({ data }: Props) {
+export default function Template2({ data, pageIndex = 0 }: Props) {
+  const { pages } = data
+  const currentPage = pages[pageIndex] || pages[0]
+  const pageSections = currentPage.sections
   const { personalInfo, experience, education, skills, languages, certifications, projects, awards } = data
   const primaryColor = data.colorScheme || '#9333ea'
   const fontFamily = data.fontFamily || 'system-ui'
 
-  const sectionOrder = data.sectionOrder || ['experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'awards']
+  const sectionOrder = pageSections || ['experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'awards']
 
   const renderSection = (sectionId: string) => {
     switch (sectionId) {

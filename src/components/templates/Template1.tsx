@@ -2,17 +2,27 @@ import { CVData } from '@/types/cv'
 
 interface Props {
   data: CVData
+  pageIndex?: number
 }
 
-export default function Template1({ data }: Props) {
+export default function Template1({ data, pageIndex = 0 }: Props) {
   const { personalInfo, experience, education, skills, languages, certifications, projects, awards } = data
   const primaryColor = data.colorScheme || '#4f46e5'
   const fontFamily = data.fontFamily || 'Georgia'
 
-  const sectionOrder = data.sectionOrder || ['experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'awards']
+  // Get sections for this page
+  const currentPage = data.pages[pageIndex] || data.pages[0]
+  const pageSections = currentPage.sections
 
   const renderSection = (sectionId: string) => {
     switch (sectionId) {
+      case 'summary':
+        return personalInfo.summary ? (
+          <section className="mb-6">
+            <h2 className="text-lg font-bold border-b-2 pb-1 mb-3" style={{ borderColor: primaryColor, color: '#1e293b' }}>PROFESSIONAL SUMMARY</h2>
+            <p className="text-gray-700 text-sm leading-relaxed">{personalInfo.summary}</p>
+          </section>
+        ) : null
       case 'experience':
         return experience.length > 0 ? (
           <section className="mb-6">
@@ -31,7 +41,6 @@ export default function Template1({ data }: Props) {
             ))}
           </section>
         ) : null
-
       case 'education':
         return education.length > 0 ? (
           <section className="mb-6">
@@ -50,21 +59,17 @@ export default function Template1({ data }: Props) {
             ))}
           </section>
         ) : null
-
       case 'skills':
         return skills.length > 0 ? (
           <section className="mb-6">
             <h2 className="text-lg font-bold border-b-2 pb-1 mb-3" style={{ borderColor: primaryColor, color: '#1e293b' }}>SKILLS</h2>
             <div className="flex flex-wrap gap-2">
               {skills.map((skill) => (
-                <span key={skill.id} className="px-3 py-1 rounded text-xs" style={{ backgroundColor: primaryColor + '20', color: primaryColor }}>
-                  {skill.name}
-                </span>
+                <span key={skill.id} className="px-3 py-1 rounded text-xs" style={{ backgroundColor: primaryColor + '20', color: primaryColor }}>{skill.name}</span>
               ))}
             </div>
           </section>
         ) : null
-
       case 'languages':
         return languages.length > 0 ? (
           <section className="mb-6">
@@ -74,7 +79,6 @@ export default function Template1({ data }: Props) {
             ))}
           </section>
         ) : null
-
       case 'certifications':
         return certifications.length > 0 ? (
           <section className="mb-6">
@@ -89,7 +93,6 @@ export default function Template1({ data }: Props) {
             </div>
           </section>
         ) : null
-
       case 'projects':
         return projects.length > 0 ? (
           <section className="mb-6">
@@ -98,14 +101,11 @@ export default function Template1({ data }: Props) {
               <div key={proj.id} className="mb-3 p-3 rounded" style={{ backgroundColor: primaryColor + '10' }}>
                 <h3 className="font-semibold text-gray-900">{proj.name}</h3>
                 <p className="text-gray-600 text-sm">{proj.description}</p>
-                {proj.technologies.length > 0 && (
-                  <p className="text-gray-500 text-xs mt-1">Tech: {proj.technologies.join(', ')}</p>
-                )}
+                {proj.technologies.length > 0 && <p className="text-gray-500 text-xs mt-1">Tech: {proj.technologies.join(', ')}</p>}
               </div>
             ))}
           </section>
         ) : null
-
       case 'awards':
         return awards.length > 0 ? (
           <section className="mb-6">
@@ -121,7 +121,6 @@ export default function Template1({ data }: Props) {
             ))}
           </section>
         ) : null
-
       default:
         return null
     }
@@ -152,20 +151,10 @@ export default function Template1({ data }: Props) {
           </div>
         </div>
 
+        {/* Content */}
         <div className="p-8">
-          {/* Summary */}
-          {personalInfo.summary && (
-            <section className="mb-6">
-              <h2 className="text-lg font-bold border-b-2 pb-1 mb-3" style={{ borderColor: primaryColor, color: '#1e293b' }}>PROFESSIONAL SUMMARY</h2>
-              <p className="text-gray-700 text-sm leading-relaxed">{personalInfo.summary}</p>
-            </section>
-          )}
-
-          {/* Dynamic Sections */}
-          {sectionOrder.map((sectionId) => (
-            <div key={sectionId}>
-              {renderSection(sectionId)}
-            </div>
+          {pageSections.map((sectionId) => (
+            <div key={sectionId}>{renderSection(sectionId)}</div>
           ))}
         </div>
       </div>

@@ -9,7 +9,7 @@ export { default as Template8 } from './Template8'
 export { default as Template9 } from './Template9'
 export { default as Template10 } from './Template10'
 
-export const sampleCVData = {
+export const sampleCVData: import('@/types/cv').CVData = {
   personalInfo: {
     fullName: 'Alex Johnson',
     email: 'alex.johnson@techcorp.com',
@@ -89,7 +89,12 @@ export const sampleCVData = {
     { id: '1', name: 'Employee of the Year', issuer: 'TechCorp Inc.', date: '2023', description: 'Recognized for exceptional technical leadership' },
     { id: '2', name: 'Hackathon Winner', issuer: 'MIT Innovation Challenge', date: '2015', description: 'Built winning AR navigation app for campus' }
   ],
-  sectionOrder: ['experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'awards'],
+  pages: [
+    { id: '1', name: 'Page 1', sections: ['summary', 'experience', 'education', 'skills', 'languages'] },
+    { id: '2', name: 'Page 2', sections: ['certifications', 'projects', 'awards'] }
+  ],
+  activePage: 0,
+  sectionOrder: ['summary', 'experience', 'education', 'skills', 'languages', 'certifications', 'projects', 'awards'],
   colorScheme: '#4f46e5',
   fontFamily: 'Georgia'
 }

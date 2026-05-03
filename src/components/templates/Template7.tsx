@@ -2,6 +2,7 @@ import { CVData } from '@/types/cv'
 
 interface Props {
   data: CVData
+  pageIndex?: number
 }
 
 export default function Template7({ data }: Props) {
