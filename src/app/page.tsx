@@ -125,21 +125,39 @@ export default function Home() {
         const captureWidth = templateEl.offsetWidth
         const captureHeight = templateEl.offsetHeight
         
+        // Safety check - ensure we have valid dimensions
+        if (captureWidth <= 0 || captureHeight <= 0) {
+          console.error('Invalid capture dimensions:', captureWidth, captureHeight)
+          continue
+        }
+        
         // Calculate PDF dimensions maintaining aspect ratio
         const captureAspect = captureHeight / captureWidth
         let pdfWidth = pageWidth
         let pdfHeight = pageWidth * captureAspect
+        
+        // Ensure dimensions are valid for jsPDF
+        if (isNaN(pdfWidth) || isNaN(pdfHeight) || pdfWidth <= 0 || pdfHeight <= 0) {
+          console.error('Invalid PDF dimensions calculated:', pdfWidth, pdfHeight)
+          continue
+        }
         
         // If height exceeds page height, scale down
         if (pdfHeight > pageHeight) {
           pdfHeight = pageHeight
           pdfWidth = pageHeight / captureAspect
         }
+        
+        // Final safety check
+        if (isNaN(pdfWidth) || isNaN(pdfHeight) || pdfWidth <= 0 || pdfHeight <= 0) {
+          console.error('Invalid PDF dimensions after adjustment:', pdfWidth, pdfHeight)
+          continue
+        }
 
         // Capture this page
         const dataUrl = await toJpeg(templateEl, {
           quality: 0.95,
-          pixelRatio: 1.5,
+          pixelRatio: 2,
           cacheBust: true,
           backgroundColor: '#ffffff'
         })
@@ -153,8 +171,13 @@ export default function Home() {
           pdf.addPage()
         }
         
-        // Add image to current page with calculated dimensions
-        pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight)
+        // Add image - use full page width, auto-calculate height to maintain aspect ratio
+        try {
+          pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, 0)
+        } catch (err) {
+          // Fallback with explicit dimensions
+          pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pdfHeight)
+        }
       }
 
       setExportProgress(95)
