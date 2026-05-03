@@ -2,8 +2,11 @@ import type { Metadata } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'CV Creator',
-  description: 'Build your professional resume',
+  title: 'ResumeVibing - Create Your Perfect Resume',
+  description: 'Build and export professional resumes with multiple templates, customization options, and PDF export.',
+  icons: {
+    icon: '/resumevibing.ico',
+  },
 }
 
 export default function RootLayout({
