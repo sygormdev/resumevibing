@@ -7,9 +7,19 @@ import CVEditor from '@/components/CVEditor'
 import * as TemplateComponents from '@/components/templates'
 
 function TemplatePreview({ templateId, data }: { templateId: string; data: CVData }) {
-  const TemplateComponent = TemplateComponents[`Template${templateId}` as keyof typeof TemplateComponents]
-  if (!TemplateComponent) return null
-  return <TemplateComponent data={data} />
+  switch (templateId) {
+    case '1': return <TemplateComponents.Template1 data={data} />
+    case '2': return <TemplateComponents.Template2 data={data} />
+    case '3': return <TemplateComponents.Template3 data={data} />
+    case '4': return <TemplateComponents.Template4 data={data} />
+    case '5': return <TemplateComponents.Template5 data={data} />
+    case '6': return <TemplateComponents.Template6 data={data} />
+    case '7': return <TemplateComponents.Template7 data={data} />
+    case '8': return <TemplateComponents.Template8 data={data} />
+    case '9': return <TemplateComponents.Template9 data={data} />
+    case '10': return <TemplateComponents.Template10 data={data} />
+    default: return null
+  }
 }
 
 export default function Home() {
