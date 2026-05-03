@@ -105,46 +105,40 @@ export default function Home() {
           )
         )
 
-        // Store original container styles
+        // Make sure container is visible for capture
         const previewContainer = previewRef.current
         const originalTransform = previewContainer.style.transform
         const originalWidth = previewContainer.style.width
-        const originalDisplay = previewContainer.style.display
         const originalOverflow = previewContainer.style.overflow
         
-        // Make sure container is visible and at natural size for capture
-        previewContainer.style.display = '' // Remove display:none if any
         previewContainer.style.overflow = 'visible'
         previewContainer.style.transform = 'none'
         
         // Force recalculation
-        await new Promise(resolve => setTimeout(resolve, 300))
+        await new Promise(resolve => setTimeout(resolve, 200))
 
-        // Get actual rendered dimensions
-        const containerRect = previewContainer.getBoundingClientRect()
-        let captureWidth = containerRect.width
-        let captureHeight = containerRect.height
+        // Get actual rendered dimensions from the template element itself
+        // This works on both mobile and desktop because we remove the scale transform
+        const actualWidth = templateEl.offsetWidth
+        const actualHeight = templateEl.offsetHeight
         
         // Fallback if dimensions are 0
-        if (captureWidth <= 0 || captureHeight <= 0) {
-          captureWidth = 800
-          captureHeight = 1131 // A4 ratio
-        }
+        const captureWidth = actualWidth > 0 ? actualWidth : 800
+        const captureHeight = actualHeight > 0 ? actualHeight : 1131
 
-        // Capture this page with explicit dimensions
+        // Capture this page with explicit dimensions matching actual content
         const dataUrl = await toJpeg(templateEl, {
           quality: 0.95,
           pixelRatio: 2,
           cacheBust: true,
           backgroundColor: '#ffffff',
-          width: Math.round(captureWidth),
-          height: Math.round(captureHeight)
+          width: captureWidth,
+          height: captureHeight
         })
 
         // Restore preview container styles
         previewContainer.style.transform = originalTransform
         previewContainer.style.width = originalWidth
-        previewContainer.style.display = originalDisplay
         previewContainer.style.overflow = originalOverflow
 
         // Add page to PDF (skip first page, it exists by default)
