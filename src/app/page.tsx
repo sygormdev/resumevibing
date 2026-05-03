@@ -75,52 +75,31 @@ export default function Home() {
 
       setExportProgress(40)
 
-      // Create a temporary container for export at actual size
-      const exportContainer = document.createElement('div')
-      exportContainer.style.position = 'absolute'
-      exportContainer.style.left = '-9999px'
-      exportContainer.style.top = '0'
-      exportContainer.style.width = '800px'
-      exportContainer.style.backgroundColor = '#ffffff'
+      // Get template dimensions
+      const rect = templateRoot.getBoundingClientRect()
       
-      // Clone the template content
-      const clone = templateRoot.cloneNode(true) as HTMLElement
-      clone.style.transform = 'none'
-      clone.style.width = '800px'
-      exportContainer.appendChild(clone)
-      document.body.appendChild(exportContainer)
-      
-      // Wait for any images in clone to load
-      const cloneImages = clone.getElementsByTagName('img')
-      for (const img of Array.from(cloneImages)) {
-        if (!img.complete) {
-          await new Promise<void>((resolve) => {
-            img.onload = () => resolve()
-            img.onerror = () => resolve()
-          })
-        }
-      }
-
       setExportProgress(50)
 
-      // Capture the clone at actual size
-      const dataUrl = await toJpeg(exportContainer, {
+      // Capture directly - html-to-image handles transforms via style overrides
+      const dataUrl = await toJpeg(templateRoot, {
         quality: 0.95,
         pixelRatio: 2,
         cacheBust: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        style: {
+          transform: 'none',
+          transformOrigin: 'top left',
+          width: rect.width + 'px'
+        }
       })
 
       setExportProgress(70)
 
-      // Remove temporary container
-      document.body.removeChild(exportContainer)
-
-      // Create PDF - jsPDF uses 72 DPI, A4 is 210x297mm
+      // Create PDF with exact content dimensions
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pageWidth = pdf.internal.pageSize.getWidth()
       
-      // Create temp image to get actual dimensions
+      // Create image to get actual dimensions
       const img = new Image()
       img.src = dataUrl
       await new Promise<void>((resolve) => {
