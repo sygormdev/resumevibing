@@ -105,79 +105,58 @@ export default function Home() {
           )
         )
 
-        // Get actual content dimensions
-        const contentWidth = templateEl.offsetWidth
-        const contentHeight = templateEl.offsetHeight
-        
-        // Set preview container to show full content for capture
+        // Store original container styles
         const previewContainer = previewRef.current
         const originalTransform = previewContainer.style.transform
+        const originalWidth = previewContainer.style.width
         const originalDisplay = previewContainer.style.display
+        const originalOverflow = previewContainer.style.overflow
         
-        // Force display block for accurate capture (important for mobile)
-        previewContainer.style.display = 'block'
+        // Make sure container is visible and at natural size for capture
+        previewContainer.style.display = '' // Remove display:none if any
+        previewContainer.style.overflow = 'visible'
         previewContainer.style.transform = 'none'
         
-        // Wait for layout to settle
-        await new Promise(resolve => setTimeout(resolve, 250))
+        // Force recalculation
+        await new Promise(resolve => setTimeout(resolve, 300))
 
-        // Get fresh dimensions after transform removal
-        const captureWidth = templateEl.offsetWidth
-        const captureHeight = templateEl.offsetHeight
+        // Get actual rendered dimensions
+        const containerRect = previewContainer.getBoundingClientRect()
+        let captureWidth = containerRect.width
+        let captureHeight = containerRect.height
         
-        // Safety check - ensure we have valid dimensions
+        // Fallback if dimensions are 0
         if (captureWidth <= 0 || captureHeight <= 0) {
-          console.error('Invalid capture dimensions:', captureWidth, captureHeight)
-          continue
-        }
-        
-        // Calculate PDF dimensions maintaining aspect ratio
-        const captureAspect = captureHeight / captureWidth
-        let pdfWidth = pageWidth
-        let pdfHeight = pageWidth * captureAspect
-        
-        // Ensure dimensions are valid for jsPDF
-        if (isNaN(pdfWidth) || isNaN(pdfHeight) || pdfWidth <= 0 || pdfHeight <= 0) {
-          console.error('Invalid PDF dimensions calculated:', pdfWidth, pdfHeight)
-          continue
-        }
-        
-        // If height exceeds page height, scale down
-        if (pdfHeight > pageHeight) {
-          pdfHeight = pageHeight
-          pdfWidth = pageHeight / captureAspect
-        }
-        
-        // Final safety check
-        if (isNaN(pdfWidth) || isNaN(pdfHeight) || pdfWidth <= 0 || pdfHeight <= 0) {
-          console.error('Invalid PDF dimensions after adjustment:', pdfWidth, pdfHeight)
-          continue
+          captureWidth = 800
+          captureHeight = 1131 // A4 ratio
         }
 
-        // Capture this page
+        // Capture this page with explicit dimensions
         const dataUrl = await toJpeg(templateEl, {
           quality: 0.95,
           pixelRatio: 2,
           cacheBust: true,
-          backgroundColor: '#ffffff'
+          backgroundColor: '#ffffff',
+          width: Math.round(captureWidth),
+          height: Math.round(captureHeight)
         })
 
         // Restore preview container styles
         previewContainer.style.transform = originalTransform
+        previewContainer.style.width = originalWidth
         previewContainer.style.display = originalDisplay
+        previewContainer.style.overflow = originalOverflow
 
         // Add page to PDF (skip first page, it exists by default)
         if (i > 0) {
           pdf.addPage()
         }
         
-        // Add image - use full page width, auto-calculate height to maintain aspect ratio
-        try {
-          pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, 0)
-        } catch (err) {
-          // Fallback with explicit dimensions
-          pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pdfHeight)
-        }
+        // Calculate height to maintain aspect ratio
+        const imgHeight = pageWidth * (captureHeight / captureWidth)
+        
+        // Add image to PDF
+        pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, imgHeight)
       }
 
       setExportProgress(95)
