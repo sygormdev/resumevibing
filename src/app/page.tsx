@@ -75,17 +75,18 @@ export default function Home() {
 
       setExportProgress(40)
 
-      // Store original styles
-      const originalTransform = templateRoot.style.transform
-      const originalWidth = templateRoot.style.width
+      // Store original className
+      const originalClassName = previewRef.current.className
       
-      // Remove transform and set actual size for capture
-      templateRoot.style.transform = 'none'
-      templateRoot.style.width = '800px'
+      // Remove scale transforms temporarily for capture
+      previewRef.current.className = originalClassName.replace(/scale-\[[^\]]+\]/g, '').replace(/lg:scale-\[[^\]]+\]/g, '')
+      previewRef.current.style.width = '800px'
 
       setExportProgress(50)
 
-      // Capture at higher quality with correct dimensions
+      // Small delay to let DOM update
+      await new Promise(resolve => setTimeout(resolve, 100))
+
       const dataUrl = await toJpeg(templateRoot, {
         quality: 0.95,
         pixelRatio: 2,
@@ -96,8 +97,7 @@ export default function Home() {
       setExportProgress(70)
 
       // Restore original styles
-      templateRoot.style.transform = originalTransform
-      templateRoot.style.width = originalWidth
+      previewRef.current.className = originalClassName
 
       // Create PDF with A4 dimensions
       const pdf = new jsPDF('p', 'mm', 'a4')
