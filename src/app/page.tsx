@@ -50,7 +50,7 @@ export default function Home() {
     try {
       setExportProgress(10)
       
-      const { toPng } = await import('html-to-image')
+      const { toJpeg } = await import('html-to-image')
       const { jsPDF } = await import('jspdf')
 
       setExportProgress(20)
@@ -82,8 +82,8 @@ export default function Home() {
       setExportProgress(40)
 
       // Capture at 2x pixel ratio for crisp text
-      const dataUrl = await toPng(templateRoot, {
-        quality: 1,
+      const dataUrl = await toJpeg(templateRoot, {
+        quality: 0.85,
         pixelRatio: 2,
         cacheBust: true,
         backgroundColor: '#ffffff'
@@ -109,7 +109,7 @@ export default function Home() {
       const scale = pageWidth / imgWidthMm
       const scaledHeight = imgHeightMm * scale
       
-      pdf.addImage(dataUrl, 'PNG', 0, 0, pageWidth, scaledHeight)
+      pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, scaledHeight)
       
       setExportProgress(90)
       
@@ -196,7 +196,7 @@ export default function Home() {
             onClick={() => setShowEditor(!showEditor)}
             className="lg:hidden px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
           >
-            {showEditor ? '👁️ Preview' : '✏️ Edit'}
+            {showEditor ? 'Preview' : 'Edit'}
           </button>
           <button
             onClick={handleExportPDF}
@@ -286,13 +286,13 @@ export default function Home() {
           onClick={() => setShowEditor(true)}
           className={`flex-1 py-2 text-sm font-medium ${showEditor ? 'text-gray-900 bg-gray-100' : 'text-gray-500 bg-gray-50'} rounded-lg mr-2`}
         >
-          ✏️ Edit
+          Edit
         </button>
         <button
           onClick={() => setShowEditor(false)}
           className={`flex-1 py-2 text-sm font-medium ${!showEditor ? 'text-gray-900 bg-gray-100' : 'text-gray-500 bg-gray-50'} rounded-lg`}
         >
-          👁️ Preview
+          Preview
         </button>
       </div>
     </div>
