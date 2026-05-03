@@ -109,36 +109,52 @@ export default function Home() {
         const contentWidth = templateEl.offsetWidth
         const contentHeight = templateEl.offsetHeight
         
-        // Set preview container to exact content width
+        // Set preview container to show full content for capture
         const previewContainer = previewRef.current
-        previewContainer.style.width = `${contentWidth}px`
+        const originalTransform = previewContainer.style.transform
+        const originalDisplay = previewContainer.style.display
+        
+        // Force display block for accurate capture (important for mobile)
+        previewContainer.style.display = 'block'
         previewContainer.style.transform = 'none'
         
-        await new Promise(resolve => setTimeout(resolve, 100))
+        // Wait for layout to settle
+        await new Promise(resolve => setTimeout(resolve, 250))
+
+        // Get fresh dimensions after transform removal
+        const captureWidth = templateEl.offsetWidth
+        const captureHeight = templateEl.offsetHeight
+        
+        // Calculate PDF dimensions maintaining aspect ratio
+        const captureAspect = captureHeight / captureWidth
+        let pdfWidth = pageWidth
+        let pdfHeight = pageWidth * captureAspect
+        
+        // If height exceeds page height, scale down
+        if (pdfHeight > pageHeight) {
+          pdfHeight = pageHeight
+          pdfWidth = pageHeight / captureAspect
+        }
 
         // Capture this page
         const dataUrl = await toJpeg(templateEl, {
           quality: 0.95,
-          pixelRatio: 2,
+          pixelRatio: 1.5,
           cacheBust: true,
-          backgroundColor: '#ffffff',
-          width: contentWidth,
-          height: contentHeight
+          backgroundColor: '#ffffff'
         })
 
-        // Restore styles
-        previewContainer.style.width = ''
-        previewContainer.style.transform = ''
+        // Restore preview container styles
+        previewContainer.style.transform = originalTransform
+        previewContainer.style.display = originalDisplay
 
         // Add page to PDF (skip first page, it exists by default)
         if (i > 0) {
           pdf.addPage()
         }
         
-        // Add image to current page - fit to page width and calculate height
-        const imgAspectRatio = contentHeight / contentWidth
-        const pdfHeight = pageWidth * imgAspectRatio
-        pdf.addImage(dataUrl, 'JPEG', 0, 0, pageWidth, pdfHeight)
+        // Add image to current page with calculated dimensions
+        pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight)
       }
 
       setExportProgress(95)
