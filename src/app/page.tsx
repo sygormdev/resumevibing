@@ -125,16 +125,14 @@ function AboutPage({ onBack }: { onBack: () => void }) {
       <header className="sticky top-0 z-40 px-4 py-4">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white/20 backdrop-blur-xl rounded-2xl border border-white/30 shadow-2xl px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src="/resumevibing.png" alt="ResumeVibing" className="h-10 w-auto" />
-              <span className="text-xl font-bold text-white">Resume Vibing</span>
-            </div>
+            <div className="w-20"></div>
             <button 
               onClick={onBack}
               className="px-5 py-2 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl hover:bg-white/30 transition-all border border-white/30"
             >
               Home
             </button>
+            <div className="w-20"></div>
           </div>
         </div>
       </header>
