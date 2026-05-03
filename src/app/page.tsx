@@ -90,7 +90,7 @@ function LandingPage({ onManuel, onAbout }: { onManuel: () => void; onAbout: () 
                 onClick={onManuel}
                 className="px-5 py-2 bg-white/50 backdrop-blur-sm text-gray-800 font-semibold rounded-xl hover:bg-white/70 transition-all border border-white/60"
               >
-                Manuel
+                Create
               </button>
             </div>
           </div>
@@ -133,7 +133,7 @@ function AboutPage({ onBack }: { onBack: () => void }) {
               onClick={onBack}
               className="px-5 py-2 bg-white/20 backdrop-blur-sm text-white font-semibold rounded-xl hover:bg-white/30 transition-all border border-white/30"
             >
-              Back
+              Home
             </button>
           </div>
         </div>
@@ -185,6 +185,7 @@ export default function Home() {
 
   const handleBackFromAbout = () => {
     setShowAbout(false)
+    setShowLanding(true)
   }
 
   const handleManuel = () => {
