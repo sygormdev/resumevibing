@@ -75,54 +75,33 @@ export default function Home() {
 
       setExportProgress(40)
 
-      // Get the actual template element - it's the child with min-h-screen
-      // We need to capture it without the parent scale transform
-      
-      // Get bounding box of actual content
+      // Get computed dimensions before transform removal
       const rect = templateRoot.getBoundingClientRect()
-      const contentWidth = rect.width
-      const contentHeight = rect.height
+      const captureWidth = Math.round(rect.width)
+      const captureHeight = Math.round(rect.height)
       
-      // Force layout by temporarily removing all transforms on the chain
-      let element: HTMLElement | null = templateRoot
-      const transformOverrides: { el: HTMLElement; transform: string }[] = []
+      // Remove transform from parent container
+      previewRef.current.style.transform = 'none'
+      previewRef.current.style.width = captureWidth + 'px'
       
-      while (element && element !== previewRef.current) {
-        const currentTransform = element.style.transform
-        if (!element.style.transform.includes('none')) {
-          element.style.transform = 'none'
-          transformOverrides.push({ el: element, transform: currentTransform })
-        }
-        element = element.parentElement
-      }
-      
-      // Also handle the preview container scale
-      const previewEl = previewRef.current
-      const previewTransform = previewEl.style.transform
-      previewEl.style.transform = 'none'
+      // Force reflow
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       setExportProgress(50)
 
-      // Wait for layout to settle
-      await new Promise(resolve => setTimeout(resolve, 300))
-
-      // Capture at 2x for quality, using width/height to get exact dimensions
       const dataUrl = await toJpeg(templateRoot, {
         quality: 0.95,
-        pixelRatio: 2,
-        width: contentWidth * 2,
-        height: contentHeight * 2,
+        width: captureWidth,
+        height: captureHeight,
         cacheBust: true,
         backgroundColor: '#ffffff'
       })
 
       setExportProgress(70)
 
-      // Restore transforms
-      for (const { el, transform } of transformOverrides) {
-        el.style.transform = transform
-      }
-      previewEl.style.transform = previewTransform
+      // Restore transform
+      previewRef.current.style.transform = ''
+      previewRef.current.style.width = ''
 
       // Create PDF with A4 dimensions
       const pdf = new jsPDF('p', 'mm', 'a4')
