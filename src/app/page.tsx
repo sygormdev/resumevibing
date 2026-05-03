@@ -4,6 +4,7 @@ import { useState, Suspense, useRef } from 'react'
 import { CVData } from '@/types/cv'
 import { templates, sampleCVData } from '@/components/templates'
 import CVEditor from '@/components/CVEditor'
+import SettingsModal from '@/components/SettingsModal'
 import * as TemplateComponents from '@/components/templates'
 
 function TemplatePreview({ templateId, data, pageIndex }: { templateId: string; data: CVData; pageIndex: number }) {
@@ -30,6 +31,7 @@ export default function Home() {
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
   const [pdfReady, setPdfReady] = useState(false)
   const [showEditor, setShowEditor] = useState(true)
+  const [showSettings, setShowSettings] = useState(false)
   const previewRef = useRef<HTMLDivElement>(null)
 
   const handleTemplateClick = (templateId: string) => {
@@ -200,12 +202,49 @@ export default function Home() {
         </div>
       )}
 
+      {/* Settings Modal */}
+      {showSettings && (
+        <SettingsModal
+          data={cvData}
+          onChange={setCvData}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
+
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
-          <h1 className="text-lg font-bold text-gray-900">CV Creator</h1>
+          <h1 className="text-lg font-bold text-gray-900">ResumeVibing</h1>
+          {/* Pages selector in navbar */}
+          <div className="hidden sm:flex items-center gap-1 ml-4">
+            {cvData.pages.map((page, index) => (
+              <button
+                key={page.id}
+                onClick={() => handleSelectPage(index)}
+                className={`px-3 py-1.5 text-xs rounded-lg font-medium transition-colors ${
+                  cvData.activePage === index
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {page.name}
+              </button>
+            ))}
+            <button
+              onClick={handleAddPage}
+              className="px-2 py-1.5 text-xs rounded-lg font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 ml-1"
+            >
+              +
+            </button>
+          </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowSettings(true)}
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+          >
+            Settings
+          </button>
           {/* Mobile toggle buttons */}
           <button
             onClick={() => setShowEditor(!showEditor)}
@@ -225,58 +264,6 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col lg:flex-row">
-        {/* Left Sidebar - Pages */}
-        <div className="lg:hidden w-full bg-white border-b border-gray-200 p-3">
-          <div className="flex gap-2 items-center">
-            {cvData.pages.map((page, index) => (
-              <button
-                key={page.id}
-                onClick={() => handleSelectPage(index)}
-                className={`px-3 py-2 text-sm rounded-lg font-medium transition-colors ${
-                  cvData.activePage === index
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {page.name}
-              </button>
-            ))}
-            <button
-              onClick={handleAddPage}
-              className="px-3 py-2 text-sm rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
-            >
-              + Add Page
-            </button>
-          </div>
-        </div>
-
-        {/* Desktop Pages Sidebar */}
-        <div className="hidden lg:flex w-48 bg-white border-r border-gray-200 flex-col">
-          <div className="p-4 border-b border-gray-200">
-            <h2 className="text-sm font-semibold text-gray-700 mb-2">Pages</h2>
-            <div className="space-y-2">
-              {cvData.pages.map((page, index) => (
-                <button
-                  key={page.id}
-                  onClick={() => handleSelectPage(index)}
-                  className={`w-full px-3 py-2 text-sm rounded-lg text-left font-medium transition-colors ${
-                    cvData.activePage === index
-                      ? 'bg-gray-900 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  {page.name}
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={handleAddPage}
-              className="w-full mt-2 px-3 py-2 text-sm rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center gap-1"
-            >
-              <span>+</span> Add Page
-            </button>
-          </div>
-        </div>
 
         {/* Template Selection - Horizontal on Mobile */}
         <div className="lg:hidden w-full bg-white border-b border-gray-200 p-3 overflow-x-auto">

@@ -252,8 +252,7 @@ export default function CVEditor({ data, onChange }: Props) {
     { id: 'languages', label: 'Languages' },
     { id: 'certifications', label: 'Certifications' },
     { id: 'projects', label: 'Projects' },
-    { id: 'awards', label: 'Awards' },
-    { id: 'settings', label: '⚙️ Settings' }
+    { id: 'awards', label: 'Awards' }
   ]
 
   const sectionLabels: Record<string, string> = {
